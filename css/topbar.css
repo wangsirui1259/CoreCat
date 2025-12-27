@@ -1,0 +1,61 @@
+/* 
+ * Topbar CSS - 顶部导航栏样式
+ */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: linear-gradient(90deg, #1f2e34, #28373c);
+  color: #f7f3ea;
+  position: relative;
+  overflow: hidden;
+}
+
+.topbar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 10%, rgba(242, 193, 78, 0.3), transparent 55%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1;
+}
+
+.brand-title {
+  font-size: 18px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.brand-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+  z-index: 1;
+}
+
+.status {
+  margin-left: 12px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  z-index: 1;
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+.status:hover {
+  color: rgba(255, 255, 255, 0.95);
+}
