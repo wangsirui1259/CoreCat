@@ -234,9 +234,6 @@ export function setWireSmartBends(wire) {
   }
 }
 
-/**
- * 创建连线
- */
 export function createWire(from, to, selectCallback) {
   const wire = {
     id: uid("wire"),
@@ -251,7 +248,8 @@ export function createWire(from, to, selectCallback) {
     style: DEFAULT_WIRE.style,
   };
   setWireDefaultBend(wire);
-  setWireSmartBends(wire);
+  // 默认不开启智能连线
+  // setWireSmartBends(wire);
   state.wires.push(wire);
   if (selectCallback) {
     selectCallback({ type: "wire", id: wire.id });

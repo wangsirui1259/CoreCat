@@ -44,7 +44,6 @@ export const MODULE_LIBRARY = {
     ports: [
       { name: "InA", side: "left", offset: 0.3 },
       { name: "InB", side: "left", offset: 0.7 },
-      { name: "Sel", side: "top", offset: 0.5 },
       { name: "Out", side: "right", offset: 0.5 },
     ],
   },
