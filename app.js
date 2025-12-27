@@ -445,7 +445,7 @@ function createWire(from, to) {
     style: DEFAULT_WIRE.style,
   };
   setWireDefaultBend(wire);
-  // Try to apply smart routing to avoid modules
+  // 添加智能连线
   setWireSmartBends(wire);
   state.wires.push(wire);
   select({ type: "wire", id: wire.id });
