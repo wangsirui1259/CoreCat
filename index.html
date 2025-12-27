@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CoreCat Circuit Blocks</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-title">CoreCat Circuit Blocks</div>
+        <div class="brand-sub">Drag modules, edit ports, connect wires.</div>
+      </div>
+      <div class="actions">
+        <button id="btn-save">Save</button>
+        <button id="btn-load">Load</button>
+        <button id="btn-export">Export JSON</button>
+        <button id="btn-import">Import JSON</button>
+        <button id="btn-export-png">Export PNG</button>
+        <button id="btn-export-svg">Export SVG</button>
+        <button id="btn-bg-toggle">BG: Solid</button>
+        <button id="btn-clear" class="danger">Clear</button>
+      </div>
+      <div id="status" class="status">Ready</div>
+    </header>
+    <div class="layout">
+      <aside class="panel palette">
+        <h2>Palette</h2>
+        <div class="palette-items">
+          <div class="palette-item alu" draggable="true" data-type="alu">ALU</div>
+          <div class="palette-item reg" draggable="true" data-type="reg">Clocked Register</div>
+          <div class="palette-item logic" draggable="true" data-type="logic">Logic Block</div>
+          <div class="palette-item combo" draggable="true" data-type="combo">Combinational</div>
+          <div class="palette-item mux" draggable="true" data-type="mux">MUX</div>
+        </div>
+        <div class="hint">
+          Click a port, then click another port to connect.
+          Drag the bend handle to reposition the wire.
+        </div>
+      </aside>
+      <main class="workspace">
+        <div id="canvas" class="canvas">
+          <svg id="wire-layer"></svg>
+          <div id="module-layer"></div>
+        </div>
+      </main>
+      <aside class="panel properties">
+        <h2>Properties</h2>
+        <div id="properties-content" class="properties-content"></div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title">Export</h3>
+      </div>
+      <textarea id="modal-text" spellcheck="false"></textarea>
+      <div class="modal-actions">
+        <button id="modal-close">Close</button>
+        <button id="modal-apply" class="primary">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
