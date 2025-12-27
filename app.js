@@ -1,5 +1,26 @@
 const NS = "http://www.w3.org/2000/svg";
 
+function buildMuxSvgBackground(mod) {
+  const width = mod.width;
+  const height = mod.height;
+  const cut = getMuxCut(mod);
+  const strokeColor = mod.strokeColor || 'rgba(150, 108, 203, 0.6)';
+  const strokeWidth = Number.isFinite(mod.strokeWidth) ? mod.strokeWidth : 2;
+  const fillColor = mod.fill || 'rgba(255, 253, 249, 0.95)';
+
+  // 梯形路径：左上 -> 右上(下移cut) -> 右下(上移cut) -> 左下
+  const path = `M ${strokeWidth / 2} ${strokeWidth / 2} 
+                L ${width - strokeWidth / 2} ${cut} 
+                L ${width - strokeWidth / 2} ${height - cut} 
+                L ${strokeWidth / 2} ${height - strokeWidth / 2} Z`;
+
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'>
+    <path d='${path}' fill='${fillColor}' stroke='${strokeColor}' stroke-width='${strokeWidth}' stroke-linejoin='round'/>
+  </svg>`;
+
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
 const MODULE_LIBRARY = {
   alu: {
     label: "ALU",
@@ -46,8 +67,8 @@ const MODULE_LIBRARY = {
   },
   mux: {
     label: "MUX",
-    width: 100,
-    height: 200,
+    width: 60,
+    height: 300,
     ports: [],
   },
 };
@@ -302,13 +323,13 @@ function muxMaxWidth(height) {
 }
 
 function ensureMuxGeometry(mod, mode) {
-  mod.width = clamp(Math.round(mod.width), 80, 420);
-  mod.height = clamp(Math.round(mod.height), 60, 320);
+  mod.width = clamp(Math.round(mod.width), 60, 300);
+  mod.height = clamp(Math.round(mod.height), 120, 600);
 
   if (mode === "keepHeight") {
     const maxWidth = muxMaxWidth(mod.height);
     if (Number.isFinite(maxWidth) && maxWidth > 0 && mod.width > maxWidth) {
-      mod.width = Math.max(80, Math.round(maxWidth));
+      mod.width = Math.max(60, Math.round(maxWidth));
     }
   }
 
@@ -585,10 +606,14 @@ function renderModules() {
     if (mod.type === "mux" && !mod.muxControlSide) {
       mod.muxControlSide = MUX_DEFAULT.controlSide;
     }
+    // 在 renderModules 函数中，找到 if (mod.type === "mux") 的部分，修改为：
     if (mod.type === "mux") {
       muxCut = ensureMuxGeometry(mod);
       el.style.height = `${mod.height}px`;
       el.style.setProperty("--mux-cut", `${muxCut}px`);
+      // 使用动态生成的 SVG 背景
+      el.style.background = buildMuxSvgBackground(mod);
+      el.style.backgroundSize = '100% 100%';
     }
     applyModuleAppearance(el, mod);
 
@@ -1020,8 +1045,8 @@ function renderModuleProperties(mod) {
   const sizeRow = document.createElement("div");
   sizeRow.className = "field-row";
   let heightInput;
-  const widthInput = makeNumberInput(mod.width, { min: 80, max: 420, step: 1 }, (value) => {
-    mod.width = clamp(Math.round(value), 80, 420);
+  const widthInput = makeNumberInput(mod.width, { min: 60, max: 300, step: 1 }, (value) => {
+    mod.width = clamp(Math.round(value), 60, 300);
     if (mod.type === "mux") {
       const beforeHeight = mod.height;
       ensureMuxGeometry(mod, "keepWidth");
@@ -1032,8 +1057,8 @@ function renderModuleProperties(mod) {
     renderModules();
     updateWires();
   });
-  heightInput = makeNumberInput(mod.height, { min: 60, max: 320, step: 1 }, (value) => {
-    mod.height = clamp(Math.round(value), 60, 320);
+  heightInput = makeNumberInput(mod.height, { min: 120, max: 600, step: 1 }, (value) => {
+    mod.height = clamp(Math.round(value), 120, 600);
     if (mod.type === "mux") {
       const beforeWidth = mod.width;
       const beforeHeight = mod.height;
