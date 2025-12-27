@@ -13,7 +13,7 @@ path.wire.selected {
 
 path.wire.preview {
   stroke: var(--wire-muted);
-  stroke-width: 2.4;
+  stroke-width: 2.5;
   stroke-dasharray: 4 6;
 }
 
@@ -27,6 +27,6 @@ text.wire-label {
 circle.wire-handle {
   fill: var(--accent);
   stroke: #1d262b;
-  stroke-width: 1.5;
+  stroke-width: 2;
   cursor: ew-resize;
 }

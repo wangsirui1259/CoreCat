@@ -52,7 +52,7 @@
 }
 
 .port-label[data-side="slopeTop"] {
-  transform: translate(calc(-50% - 2px), 2px);
+  transform: translate(calc(-50% - 2px), 8px);
 }
 
 .port-label[data-side="slopeBottom"] {
@@ -60,22 +60,37 @@
 }
 
 /* extender 的端口标签：覆盖默认 */
-.palette-item.extender .port-label[data-side="left"] {
+.module.extender .port{
   transform: translate(-50%, -50%);
 }
 
-.palette-item.extender .port-label[data-side="right"] {
+.module.mux .port{
   transform: translate(-50%, -50%);
 }
 
-/* mux 的端口标签：覆盖默认 */
-.palette-item.mux .port-label[data-side="left"] {
+.module.extender .port-label[data-side="left"]{
+  transform: translate(7px, -50%);
+}
+
+.module.extender .port-label[data-side="right"]{
+  transform: translate(calc(-100% - 8px), -50%);
+}
+
+.module.mux .port{
   transform: translate(-50%, -50%);
 }
 
-.palette-item.mux .port-label[data-side="right"] {
-  transform: translate(-50%, -50%);
+.module.mux .port-label[data-side="left"]{
+  transform: translate(7px, -50%);
 }
+
+.module.mux .port-label[data-side="right"]{
+  transform: translate(calc(-100% - 8px), -50%);
+}
+/* 
+.module.mux .port-label[data-side="top"] {
+  transform: translate(calc(-50% - 2px), 3px);
+} */
 
 .clock-marker {
   position: absolute;

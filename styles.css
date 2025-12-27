@@ -327,34 +327,6 @@ button.danger {
   --module-stroke: rgba(58, 114, 176, 0.8);
 }
 
-/* .module.mux {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  border-radius: 0;
-  --module-stroke: rgba(150, 108, 203, 0.8);
-}
-
-.module.mux::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 0;
-  background: var(--module-fill, var(--module-fill-default));
-  border: var(--module-stroke-width, 1px) solid var(--module-stroke, rgba(31, 38, 43, 0.24));
-  clip-path: polygon(0 0,
-      100% var(--mux-cut, 0px),
-      100% calc(100% - var(--mux-cut, 0px)),
-      0 100%);
-  box-shadow: 0 8px 16px rgba(17, 24, 28, 0.18);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.module.mux.selected::before {
-  box-shadow: 0 8px 16px rgba(17, 24, 28, 0.18), 0 0 0 2px rgba(242, 193, 78, 0.85);
-} */
-
 .module.mux {
   background: transparent;
   border: none;
@@ -489,7 +461,7 @@ path.wire.selected {
 
 path.wire.preview {
   stroke: var(--wire-muted);
-  stroke-width: 2.4;
+  stroke-width: 2.5;
   stroke-dasharray: 4 6;
 }
 
@@ -503,7 +475,7 @@ text.wire-label {
 circle.wire-handle {
   fill: var(--accent);
   stroke: #1d262b;
-  stroke-width: 1.5;
+  stroke-width: 2;
   cursor: ew-resize;
 }
 

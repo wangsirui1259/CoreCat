@@ -75,8 +75,8 @@ export const DEFAULT_MODULE = {
 export const MUX_DEFAULT = {
   inputs: 4,
   controlSide: "top",
-  controlOffsetTop: 0.6,
-  controlOffsetBottom: 0.6,
+  controlOffsetTop: 0.55,
+  controlOffsetBottom: 0.55,
   slopeAngle: 60,
   minRight: 24,
 };
@@ -89,7 +89,7 @@ export const EXTENDER_DEFAULT = {
 
 export const DEFAULT_WIRE = {
   color: "#263238",
-  width: 2.4,
+  width: 2.5,
   style: "solid",
 };
 
