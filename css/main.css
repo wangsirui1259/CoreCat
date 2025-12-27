@@ -1,0 +1,30 @@
+/* 
+ * Main CSS - 主样式文件，汇总导入所有模块
+ * 
+ * 文件结构:
+ * - base.css: 变量定义、重置样式、全局基础样式
+ * - topbar.css: 顶部导航栏样式
+ * - layout.css: 布局相关样式
+ * - palette.css: 调色板/组件面板样式
+ * - canvas.css: 画布区域样式
+ * - module.css: 模块元素样式
+ * - port.css: 端口和标签样式
+ * - wire.css: 连线样式
+ * - properties.css: 属性面板样式
+ * - modal.css: 模态框样式
+ * - animations.css: 动画样式
+ * - responsive.css: 响应式样式
+ */
+
+@import url('./base.css');
+@import url('./topbar.css');
+@import url('./layout.css');
+@import url('./palette.css');
+@import url('./canvas.css');
+@import url('./module.css');
+@import url('./port.css');
+@import url('./wire.css');
+@import url('./properties.css');
+@import url('./modal.css');
+@import url('./animations.css');
+@import url('./responsive.css');

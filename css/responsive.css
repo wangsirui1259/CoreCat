@@ -1,0 +1,29 @@
+/* 
+ * Responsive CSS - 响应式样式
+ */
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: 200px 1fr 280px;
+  }
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .palette,
+  .properties {
+    max-height: none;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .status {
+    display: none;
+  }
+}
