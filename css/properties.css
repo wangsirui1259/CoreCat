@@ -1,0 +1,98 @@
+/* 
+ * Properties CSS - 属性面板样式
+ */
+
+.properties {
+  overflow: auto;
+}
+
+.properties-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.field-inline {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.field-inline label {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.field label {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.port-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.port-row {
+  display: grid;
+  grid-template-columns: 1.1fr 0.7fr 0.6fr auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.port-row button {
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(31, 38, 43, 0.1);
+  color: var(--ink);
+  text-transform: none;
+}
+
+.port-row button:hover {
+  background: rgba(31, 38, 43, 0.18);
+}
+
+.action-row {
+  display: flex;
+  gap: 8px;
+}
+
+.action-row button {
+  flex: 1;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.btn-accent {
+  background: #3b7d73;
+  color: #f7f3ea;
+}
+
+.btn-accent:hover {
+  background: #2f685f;
+}
+
+.empty-state {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  padding: 12px;
+  background: var(--bg-strong);
+  border-radius: 12px;
+}
