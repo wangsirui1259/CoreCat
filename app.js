@@ -96,6 +96,9 @@ const DEFAULT_WIRE = {
   style: "solid",
 };
 
+// Minimum distance between wires and module edges
+const WIRE_MARGIN = 20;
+
 const DEFAULT_CANVAS_BG = "#f6f1e8";
 
 const WIRE_STYLES = {
@@ -281,7 +284,13 @@ function computeDiagramBounds() {
     }
     extendPoint(start.x, start.y);
     extendPoint(end.x, end.y);
-    if (wire.route === "V") {
+    
+    // Handle multi-segment bends
+    if (Array.isArray(wire.bends) && wire.bends.length > 0) {
+      wire.bends.forEach((bend) => {
+        extendPoint(bend.x, bend.y);
+      });
+    } else if (wire.route === "V") {
       extendPoint(start.x, wire.bend);
       extendPoint(end.x, wire.bend);
     } else {
@@ -430,11 +439,14 @@ function createWire(from, to) {
     label: "",
     route: "H",
     bend: 0,
+    bends: null, // For multi-segment routing
     color: DEFAULT_WIRE.color,
     width: DEFAULT_WIRE.width,
     style: DEFAULT_WIRE.style,
   };
   setWireDefaultBend(wire);
+  // Try to apply smart routing to avoid modules
+  setWireSmartBends(wire);
   state.wires.push(wire);
   select({ type: "wire", id: wire.id });
 }
@@ -449,6 +461,171 @@ function setWireDefaultBend(wire) {
     wire.bend = Math.round((start.y + end.y) / 2);
   } else {
     wire.bend = Math.round((start.x + end.x) / 2);
+  }
+  // Initialize bends array for multi-segment support
+  wire.bends = null;
+}
+
+// Get module bounding box with margin for wire routing
+function getModuleBounds(mod, margin = WIRE_MARGIN) {
+  return {
+    left: mod.x - margin,
+    right: mod.x + mod.width + margin,
+    top: mod.y - margin,
+    bottom: mod.y + mod.height + margin,
+  };
+}
+
+// Check if a point is inside a rectangle
+function pointInRect(x, y, rect) {
+  return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom;
+}
+
+// Check if a horizontal line segment intersects with a rectangle (excluding endpoints)
+function hLineIntersectsRect(y, x1, x2, rect) {
+  if (y <= rect.top || y >= rect.bottom) return false;
+  const minX = Math.min(x1, x2);
+  const maxX = Math.max(x1, x2);
+  return maxX > rect.left && minX < rect.right;
+}
+
+// Check if a vertical line segment intersects with a rectangle (excluding endpoints)
+function vLineIntersectsRect(x, y1, y2, rect) {
+  if (x <= rect.left || x >= rect.right) return false;
+  const minY = Math.min(y1, y2);
+  const maxY = Math.max(y1, y2);
+  return maxY > rect.top && minY < rect.bottom;
+}
+
+// Get all modules that a wire might intersect with (excluding source and target modules)
+function getObstacleModules(wire) {
+  const fromMod = getModuleById(wire.from.moduleId);
+  const toMod = getModuleById(wire.to.moduleId);
+  return state.modules.filter((mod) => mod.id !== wire.from.moduleId && mod.id !== wire.to.moduleId);
+}
+
+// Check if the simple 3-segment path intersects any module
+function checkPathCollision(wire, start, end) {
+  const obstacles = getObstacleModules(wire);
+  
+  for (const mod of obstacles) {
+    const rect = getModuleBounds(mod);
+    
+    if (wire.route === "V") {
+      const midY = wire.bend;
+      // Segment 1: vertical from start.y to midY at start.x
+      if (vLineIntersectsRect(start.x, start.y, midY, rect)) return true;
+      // Segment 2: horizontal from start.x to end.x at midY
+      if (hLineIntersectsRect(midY, start.x, end.x, rect)) return true;
+      // Segment 3: vertical from midY to end.y at end.x
+      if (vLineIntersectsRect(end.x, midY, end.y, rect)) return true;
+    } else {
+      const midX = wire.bend;
+      // Segment 1: horizontal from start.x to midX at start.y
+      if (hLineIntersectsRect(start.y, start.x, midX, rect)) return true;
+      // Segment 2: vertical from start.y to end.y at midX
+      if (vLineIntersectsRect(midX, start.y, end.y, rect)) return true;
+      // Segment 3: horizontal from midX to end.x at end.y
+      if (hLineIntersectsRect(end.y, midX, end.x, rect)) return true;
+    }
+  }
+  
+  return false;
+}
+
+// Compute a smart route that avoids modules using a 5-segment path
+function computeSmartRoute(wire, start, end) {
+  const obstacles = getObstacleModules(wire);
+  if (obstacles.length === 0) return null;
+  
+  // Try to find a route around obstacles using up to 5 segments
+  // For H route: H -> V -> H -> V -> H
+  // For V route: V -> H -> V -> H -> V
+  
+  const margin = WIRE_MARGIN;
+  let bestRoute = null;
+  
+  // Collect all module boundaries for routing
+  const allBounds = obstacles.map((mod) => getModuleBounds(mod, margin));
+  
+  // Try routing around each obstacle
+  for (const mod of obstacles) {
+    const rect = getModuleBounds(mod, margin);
+    
+    if (wire.route === "H") {
+      // Try going above the module
+      const topY = rect.top - margin;
+      // Try going below the module
+      const bottomY = rect.bottom + margin;
+      
+      // Check if going above works
+      const routeAbove = [
+        { x: (start.x + rect.left) / 2, y: start.y },
+        { x: (start.x + rect.left) / 2, y: topY },
+        { x: (end.x + rect.right) / 2, y: topY },
+        { x: (end.x + rect.right) / 2, y: end.y },
+      ];
+      
+      // Check if going below works
+      const routeBelow = [
+        { x: (start.x + rect.left) / 2, y: start.y },
+        { x: (start.x + rect.left) / 2, y: bottomY },
+        { x: (end.x + rect.right) / 2, y: bottomY },
+        { x: (end.x + rect.right) / 2, y: end.y },
+      ];
+      
+      // Choose the shorter route
+      const distAbove = Math.abs(topY - start.y) + Math.abs(topY - end.y);
+      const distBelow = Math.abs(bottomY - start.y) + Math.abs(bottomY - end.y);
+      
+      bestRoute = distAbove < distBelow ? routeAbove : routeBelow;
+    } else {
+      // V route - try going left or right of the module
+      const leftX = rect.left - margin;
+      const rightX = rect.right + margin;
+      
+      const routeLeft = [
+        { x: start.x, y: (start.y + rect.top) / 2 },
+        { x: leftX, y: (start.y + rect.top) / 2 },
+        { x: leftX, y: (end.y + rect.bottom) / 2 },
+        { x: end.x, y: (end.y + rect.bottom) / 2 },
+      ];
+      
+      const routeRight = [
+        { x: start.x, y: (start.y + rect.top) / 2 },
+        { x: rightX, y: (start.y + rect.top) / 2 },
+        { x: rightX, y: (end.y + rect.bottom) / 2 },
+        { x: end.x, y: (end.y + rect.bottom) / 2 },
+      ];
+      
+      const distLeft = Math.abs(leftX - start.x) + Math.abs(leftX - end.x);
+      const distRight = Math.abs(rightX - start.x) + Math.abs(rightX - end.x);
+      
+      bestRoute = distLeft < distRight ? routeLeft : routeRight;
+    }
+    
+    break; // Use first obstacle for now
+  }
+  
+  return bestRoute;
+}
+
+// Set smart routing for a wire, computing avoidance path if needed
+function setWireSmartBends(wire) {
+  const start = getPortPositionByRef(wire.from);
+  const end = getPortPositionByRef(wire.to);
+  if (!start || !end) return;
+  
+  // First check if simple path has collision
+  if (!checkPathCollision(wire, start, end)) {
+    wire.bends = null; // Use simple routing
+    return;
+  }
+  
+  // Compute smart route around obstacles
+  const smartRoute = computeSmartRoute(wire, start, end);
+  if (smartRoute) {
+    wire.bends = smartRoute.map((p) => ({ x: Math.round(p.x), y: Math.round(p.y) }));
   }
 }
 
@@ -469,6 +646,17 @@ function svgEl(tag, attrs) {
 }
 
 function buildWirePath(wire, start, end) {
+  // If wire has custom bends array (multi-segment), use it
+  if (Array.isArray(wire.bends) && wire.bends.length > 0) {
+    let path = `M ${start.x} ${start.y}`;
+    for (const bend of wire.bends) {
+      path += ` L ${bend.x} ${bend.y}`;
+    }
+    path += ` L ${end.x} ${end.y}`;
+    return path;
+  }
+  
+  // Default simple 3-segment routing
   if (wire.route === "V") {
     const midY = wire.bend;
     return `M ${start.x} ${start.y} L ${start.x} ${midY} L ${end.x} ${midY} L ${end.x} ${end.y}`;
@@ -477,7 +665,30 @@ function buildWirePath(wire, start, end) {
   return `M ${start.x} ${start.y} L ${midX} ${start.y} L ${midX} ${end.y} L ${end.x} ${end.y}`;
 }
 
+// Get all handle positions for a wire (including multi-segment bends)
+function getWireHandlePositions(wire, start, end) {
+  if (Array.isArray(wire.bends) && wire.bends.length > 0) {
+    return wire.bends.map((bend, index) => ({
+      x: bend.x,
+      y: bend.y,
+      index,
+    }));
+  }
+  
+  // Single handle for simple routing
+  if (wire.route === "V") {
+    return [{ x: (start.x + end.x) / 2, y: wire.bend, index: -1 }];
+  }
+  return [{ x: wire.bend, y: (start.y + end.y) / 2, index: -1 }];
+}
+
 function wireHandlePosition(wire, start, end) {
+  // For multi-segment, return the middle bend position
+  if (Array.isArray(wire.bends) && wire.bends.length > 0) {
+    const midIndex = Math.floor(wire.bends.length / 2);
+    return { x: wire.bends[midIndex].x, y: wire.bends[midIndex].y };
+  }
+  
   if (wire.route === "V") {
     return { x: (start.x + end.x) / 2, y: wire.bend };
   }
@@ -542,18 +753,21 @@ function updateWires() {
     }
 
     if (isSelected) {
-      const handlePos = wireHandlePosition(wire, start, end);
-      const handle = svgEl("circle", {
-        cx: handlePos.x,
-        cy: handlePos.y,
-        r: 6,
-        class: "wire-handle",
+      // Render all handle positions for multi-segment wires
+      const handlePositions = getWireHandlePositions(wire, start, end);
+      handlePositions.forEach((pos) => {
+        const handle = svgEl("circle", {
+          cx: pos.x,
+          cy: pos.y,
+          r: 6,
+          class: "wire-handle",
+        });
+        handle.addEventListener("pointerdown", (event) => {
+          event.stopPropagation();
+          startWireDrag(event, wire, pos.index);
+        });
+        wireLayer.appendChild(handle);
       });
-      handle.addEventListener("pointerdown", (event) => {
-        event.stopPropagation();
-        startWireDrag(event, wire);
-      });
-      wireLayer.appendChild(handle);
     }
   });
 
@@ -776,11 +990,14 @@ function endPan() {
   window.removeEventListener("pointerup", endPan);
 }
 
-function startWireDrag(event, wire) {
+function startWireDrag(event, wire, bendIndex = -1) {
   state.dragWire = {
     id: wire.id,
     route: wire.route,
-    origin: wire.bend,
+    bendIndex: bendIndex, // -1 for simple routing, >= 0 for multi-segment
+    origin: bendIndex >= 0 && Array.isArray(wire.bends) 
+      ? { x: wire.bends[bendIndex].x, y: wire.bends[bendIndex].y }
+      : wire.bend,
     startX: event.clientX,
     startY: event.clientY,
   };
@@ -796,10 +1013,24 @@ function onWireDrag(event) {
   if (!wire) {
     return;
   }
-  if (state.dragWire.route === "V") {
-    wire.bend = Math.round(state.dragWire.origin + (event.clientY - state.dragWire.startY) / state.view.scale);
+  
+  const dx = (event.clientX - state.dragWire.startX) / state.view.scale;
+  const dy = (event.clientY - state.dragWire.startY) / state.view.scale;
+  
+  // Handle multi-segment bend dragging
+  if (state.dragWire.bendIndex >= 0 && Array.isArray(wire.bends)) {
+    const origin = state.dragWire.origin;
+    wire.bends[state.dragWire.bendIndex] = {
+      x: Math.round(origin.x + dx),
+      y: Math.round(origin.y + dy),
+    };
   } else {
-    wire.bend = Math.round(state.dragWire.origin + (event.clientX - state.dragWire.startX) / state.view.scale);
+    // Simple routing
+    if (state.dragWire.route === "V") {
+      wire.bend = Math.round(state.dragWire.origin + dy);
+    } else {
+      wire.bend = Math.round(state.dragWire.origin + dx);
+    }
   }
   updateWires();
 }
@@ -1227,6 +1458,8 @@ function renderWireProperties(wire) {
       (value) => {
         wire.route = value;
         setWireDefaultBend(wire);
+        // Clear multi-segment bends when changing route
+        wire.bends = null;
         updateWires();
         renderProperties();
       }
@@ -1234,14 +1467,98 @@ function renderWireProperties(wire) {
   );
   propertiesContent.appendChild(routeField);
 
-  const bendField = makeField(
-    "Bend (px)",
-    makeNumberInput(wire.bend, { step: 1 }, (value) => {
-      wire.bend = Math.round(value);
-      updateWires();
-    })
-  );
-  propertiesContent.appendChild(bendField);
+  // Show multi-segment controls if bends exist
+  if (Array.isArray(wire.bends) && wire.bends.length > 0) {
+    const bendsField = document.createElement("div");
+    bendsField.className = "field";
+    const bendsLabel = document.createElement("label");
+    bendsLabel.textContent = "Bend Points";
+    bendsField.appendChild(bendsLabel);
+
+    const bendsList = document.createElement("div");
+    bendsList.className = "port-list";
+
+    wire.bends.forEach((bend, index) => {
+      const row = document.createElement("div");
+      row.className = "port-row";
+
+      const label = document.createElement("span");
+      label.textContent = `Point ${index + 1}`;
+      label.style.fontSize = "12px";
+      label.style.color = "var(--muted)";
+
+      const xInput = makeNumberInput(bend.x, { step: 1 }, (value) => {
+        wire.bends[index].x = Math.round(value);
+        updateWires();
+      });
+      xInput.placeholder = "X";
+      xInput.title = "X position";
+
+      const yInput = makeNumberInput(bend.y, { step: 1 }, (value) => {
+        wire.bends[index].y = Math.round(value);
+        updateWires();
+      });
+      yInput.placeholder = "Y";
+      yInput.title = "Y position";
+
+      row.appendChild(label);
+      row.appendChild(xInput);
+      row.appendChild(yInput);
+      bendsList.appendChild(row);
+    });
+
+    bendsField.appendChild(bendsList);
+    propertiesContent.appendChild(bendsField);
+
+    // Add button to reset to simple routing
+    const resetRouteRow = document.createElement("div");
+    resetRouteRow.className = "action-row";
+    resetRouteRow.appendChild(
+      makeButton("Reset to Simple Route", "btn-accent", () => {
+        wire.bends = null;
+        setWireDefaultBend(wire);
+        updateWires();
+        renderProperties();
+      })
+    );
+    propertiesContent.appendChild(resetRouteRow);
+
+    // Add button to re-compute smart route
+    const recomputeRow = document.createElement("div");
+    recomputeRow.className = "action-row";
+    recomputeRow.appendChild(
+      makeButton("Recompute Smart Route", "btn-accent", () => {
+        wire.bends = null;
+        setWireDefaultBend(wire);
+        setWireSmartBends(wire);
+        updateWires();
+        renderProperties();
+      })
+    );
+    propertiesContent.appendChild(recomputeRow);
+  } else {
+    // Simple routing - show single bend control
+    const bendField = makeField(
+      "Bend (px)",
+      makeNumberInput(wire.bend, { step: 1 }, (value) => {
+        wire.bend = Math.round(value);
+        updateWires();
+      })
+    );
+    propertiesContent.appendChild(bendField);
+
+    // Add button to enable smart routing
+    const smartRouteRow = document.createElement("div");
+    smartRouteRow.className = "action-row";
+    smartRouteRow.appendChild(
+      makeButton("Enable Smart Route", "btn-accent", () => {
+        setWireSmartBends(wire);
+        updateWires();
+        renderProperties();
+      })
+    );
+    propertiesContent.appendChild(smartRouteRow);
+  }
 
   const meta = document.createElement("div");
   meta.className = "empty-state";
@@ -1361,6 +1678,7 @@ function serializeState() {
       label: wire.label,
       route: wire.route,
       bend: wire.bend,
+      bends: wire.bends, // Include multi-segment bends
       color: wire.color,
       width: wire.width,
       style: wire.style,
@@ -1414,11 +1732,14 @@ function loadState(data) {
     const width = Number.isFinite(wire.width) ? wire.width : DEFAULT_WIRE.width;
     const color = typeof wire.color === "string" && wire.color ? wire.color : DEFAULT_WIRE.color;
     const style = WIRE_STYLES[wire.style] !== undefined ? wire.style : DEFAULT_WIRE.style;
+    // Load multi-segment bends if present
+    const bends = Array.isArray(wire.bends) ? wire.bends : null;
     return {
       ...wire,
       color,
       width,
       style,
+      bends,
     };
   });
   state.selection = null;
