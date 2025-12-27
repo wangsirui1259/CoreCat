@@ -497,16 +497,21 @@ function vLineIntersectsRect(x, y1, y2, rect) {
   return maxY > rect.top && minY < rect.bottom;
 }
 
-// Get all modules that a wire might intersect with (excluding source and target modules)
-function getObstacleModules(wire) {
+// Get all modules that a wire might intersect with
+// includeEndpoints: if true, also include source/target modules as potential obstacles
+function getObstacleModules(wire, includeEndpoints = false) {
+  if (includeEndpoints) {
+    return state.modules;
+  }
   return state.modules.filter((mod) => mod.id !== wire.from.moduleId && mod.id !== wire.to.moduleId);
 }
 
-// Check if the simple 3-segment path intersects any module
+// Check if the simple 3-segment path intersects any module (including source/target modules)
 function checkPathCollision(wire, start, end) {
-  const obstacles = getObstacleModules(wire);
+  // Check all modules including source and target - the wire path may pass through them
+  const allModules = getObstacleModules(wire, true);
   
-  for (const mod of obstacles) {
+  for (const mod of allModules) {
     const rect = getModuleBounds(mod);
     
     if (wire.route === "V") {
@@ -531,97 +536,150 @@ function checkPathCollision(wire, start, end) {
   return false;
 }
 
-// Compute a smart route that avoids modules
-// Uses a simple greedy algorithm: finds the first blocking obstacle and routes around it
-// The route consists of 4 bend points forming a path that goes above/below (H route) or left/right (V route) of the obstacle
+// Compute a smart route that avoids ALL modules
+// Uses a bounding-box approach: finds the combined bounds of all obstacles in the path and routes around them
 function computeSmartRoute(wire, start, end) {
-  const obstacles = getObstacleModules(wire);
-  if (obstacles.length === 0) return null;
+  // Include all modules including source/target as potential obstacles
+  const allModules = getObstacleModules(wire, true);
+  if (allModules.length === 0) return null;
   
   const margin = WIRE_MARGIN;
   
-  // Find the first obstacle that blocks the direct path
-  // For simplicity, we route around this obstacle; more complex scenarios may need A* pathfinding
-  for (const mod of obstacles) {
+  // Find all obstacles that are in the wire's bounding box area
+  const minX = Math.min(start.x, end.x);
+  const maxX = Math.max(start.x, end.x);
+  const minY = Math.min(start.y, end.y);
+  const maxY = Math.max(start.y, end.y);
+  
+  // Collect all modules that could interfere with the wire path
+  const relevantModules = allModules.filter((mod) => {
     const rect = getModuleBounds(mod, margin);
-    
-    // Check if this obstacle is actually in the way
-    const minX = Math.min(start.x, end.x);
-    const maxX = Math.max(start.x, end.x);
-    const minY = Math.min(start.y, end.y);
-    const maxY = Math.max(start.y, end.y);
-    
-    // Skip if obstacle is completely outside the wire's bounding box (with some margin)
-    if (rect.right < minX - margin || rect.left > maxX + margin ||
-        rect.bottom < minY - margin || rect.top > maxY + margin) {
-      continue;
-    }
-    
-    if (wire.route === "H") {
-      // Horizontal-first routing: go around above or below the obstacle
-      const topY = rect.top - margin;
-      const bottomY = rect.bottom + margin;
-      
-      // Calculate midpoint X for the vertical segment (between start and obstacle left edge)
-      const midX1 = Math.min(start.x + margin, rect.left - margin);
-      // Calculate midpoint X for the second vertical segment (between obstacle right edge and end)
-      const midX2 = Math.max(end.x - margin, rect.right + margin);
-      
-      // Route above: start -> go right -> go up -> go right above obstacle -> go down -> end
-      const routeAbove = [
-        { x: midX1, y: start.y },
-        { x: midX1, y: topY },
-        { x: midX2, y: topY },
-        { x: midX2, y: end.y },
-      ];
-      
-      // Route below: similar but going below the obstacle
-      const routeBelow = [
-        { x: midX1, y: start.y },
-        { x: midX1, y: bottomY },
-        { x: midX2, y: bottomY },
-        { x: midX2, y: end.y },
-      ];
-      
-      // Choose the route that requires less vertical travel
-      const distAbove = Math.abs(topY - start.y) + Math.abs(topY - end.y);
-      const distBelow = Math.abs(bottomY - start.y) + Math.abs(bottomY - end.y);
-      
-      return distAbove < distBelow ? routeAbove : routeBelow;
-    } else {
-      // Vertical-first routing: go around left or right of the obstacle
-      const leftX = rect.left - margin;
-      const rightX = rect.right + margin;
-      
-      // Calculate midpoint Y for the horizontal segments
-      const midY1 = Math.min(start.y + margin, rect.top - margin);
-      const midY2 = Math.max(end.y - margin, rect.bottom + margin);
-      
-      // Route left: start -> go down -> go left -> go down left of obstacle -> go right -> end
-      const routeLeft = [
-        { x: start.x, y: midY1 },
-        { x: leftX, y: midY1 },
-        { x: leftX, y: midY2 },
-        { x: end.x, y: midY2 },
-      ];
-      
-      // Route right: similar but going right of the obstacle
-      const routeRight = [
-        { x: start.x, y: midY1 },
-        { x: rightX, y: midY1 },
-        { x: rightX, y: midY2 },
-        { x: end.x, y: midY2 },
-      ];
-      
-      // Choose the route that requires less horizontal travel
-      const distLeft = Math.abs(leftX - start.x) + Math.abs(leftX - end.x);
-      const distRight = Math.abs(rightX - start.x) + Math.abs(rightX - end.x);
-      
-      return distLeft < distRight ? routeLeft : routeRight;
-    }
+    // Check if module's bounding box overlaps with wire's bounding box
+    return !(rect.right < minX - margin || rect.left > maxX + margin ||
+             rect.bottom < minY - margin || rect.top > maxY + margin);
+  });
+  
+  if (relevantModules.length === 0) return null;
+  
+  // Compute combined bounding box of all relevant modules
+  let combinedLeft = Infinity, combinedRight = -Infinity;
+  let combinedTop = Infinity, combinedBottom = -Infinity;
+  
+  for (const mod of relevantModules) {
+    const rect = getModuleBounds(mod, margin);
+    combinedLeft = Math.min(combinedLeft, rect.left);
+    combinedRight = Math.max(combinedRight, rect.right);
+    combinedTop = Math.min(combinedTop, rect.top);
+    combinedBottom = Math.max(combinedBottom, rect.bottom);
   }
   
-  return null; // No obstacle found blocking the path
+  if (wire.route === "H") {
+    // Horizontal-first routing
+    // Determine the exit and entry X positions based on start/end positions relative to combined bounds
+    let midX1, midX2;
+    
+    // For start position
+    if (start.x >= combinedRight - margin) {
+      // Start is to the right of all obstacles - go further right
+      midX1 = combinedRight + margin;
+    } else if (start.x <= combinedLeft + margin) {
+      // Start is to the left of all obstacles - go further left
+      midX1 = combinedLeft - margin;
+    } else {
+      // Start is within obstacles horizontally - need to exit
+      // Go to the nearest edge
+      const distToRight = combinedRight - start.x;
+      const distToLeft = start.x - combinedLeft;
+      midX1 = distToRight < distToLeft ? combinedRight + margin : combinedLeft - margin;
+    }
+    
+    // For end position
+    if (end.x >= combinedRight - margin) {
+      // End is to the right of all obstacles
+      midX2 = combinedRight + margin;
+    } else if (end.x <= combinedLeft + margin) {
+      // End is to the left of all obstacles
+      midX2 = combinedLeft - margin;
+    } else {
+      // End is within obstacles horizontally
+      const distToRight = combinedRight - end.x;
+      const distToLeft = end.x - combinedLeft;
+      midX2 = distToRight < distToLeft ? combinedRight + margin : combinedLeft - margin;
+    }
+    
+    // Route above all obstacles
+    const topY = combinedTop - margin;
+    const routeAbove = [
+      { x: midX1, y: start.y },
+      { x: midX1, y: topY },
+      { x: midX2, y: topY },
+      { x: midX2, y: end.y },
+    ];
+    
+    // Route below all obstacles
+    const bottomY = combinedBottom + margin;
+    const routeBelow = [
+      { x: midX1, y: start.y },
+      { x: midX1, y: bottomY },
+      { x: midX2, y: bottomY },
+      { x: midX2, y: end.y },
+    ];
+    
+    // Choose the route that requires less vertical travel
+    const distAbove = Math.abs(topY - start.y) + Math.abs(topY - end.y);
+    const distBelow = Math.abs(bottomY - start.y) + Math.abs(bottomY - end.y);
+    
+    return distAbove < distBelow ? routeAbove : routeBelow;
+  } else {
+    // Vertical-first routing
+    let midY1, midY2;
+    
+    // For start position
+    if (start.y >= combinedBottom - margin) {
+      midY1 = combinedBottom + margin;
+    } else if (start.y <= combinedTop + margin) {
+      midY1 = combinedTop - margin;
+    } else {
+      const distToBottom = combinedBottom - start.y;
+      const distToTop = start.y - combinedTop;
+      midY1 = distToBottom < distToTop ? combinedBottom + margin : combinedTop - margin;
+    }
+    
+    // For end position
+    if (end.y >= combinedBottom - margin) {
+      midY2 = combinedBottom + margin;
+    } else if (end.y <= combinedTop + margin) {
+      midY2 = combinedTop - margin;
+    } else {
+      const distToBottom = combinedBottom - end.y;
+      const distToTop = end.y - combinedTop;
+      midY2 = distToBottom < distToTop ? combinedBottom + margin : combinedTop - margin;
+    }
+    
+    // Route left of all obstacles
+    const leftX = combinedLeft - margin;
+    const routeLeft = [
+      { x: start.x, y: midY1 },
+      { x: leftX, y: midY1 },
+      { x: leftX, y: midY2 },
+      { x: end.x, y: midY2 },
+    ];
+    
+    // Route right of all obstacles
+    const rightX = combinedRight + margin;
+    const routeRight = [
+      { x: start.x, y: midY1 },
+      { x: rightX, y: midY1 },
+      { x: rightX, y: midY2 },
+      { x: end.x, y: midY2 },
+    ];
+    
+    // Choose the route that requires less horizontal travel
+    const distLeft = Math.abs(leftX - start.x) + Math.abs(leftX - end.x);
+    const distRight = Math.abs(rightX - start.x) + Math.abs(rightX - end.x);
+    
+    return distLeft < distRight ? routeLeft : routeRight;
+  }
 }
 
 // Set smart routing for a wire, computing avoidance path if needed
