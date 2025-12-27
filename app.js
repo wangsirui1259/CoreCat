@@ -19,7 +19,7 @@ const MODULE_LIBRARY = {
     ports: [
       { name: "D", side: "left", offset: 0.5 },
       { name: "Q", side: "right", offset: 0.5 },
-      { name: "CLK", side: "top", offset: 0.5 },
+      { name: "CLK", side: "top", offset: 0.5, clock: true },
       // { name: "RST", side: "bottom", offset: 0.75 }
     ],
   },
@@ -57,7 +57,7 @@ const DEFAULT_MODULE = {
   showType: false,
   fill: "",
   strokeColor: "",
-  strokeWidth: null,
+  strokeWidth: 2,
 };
 
 const MUX_DEFAULT = {
@@ -75,6 +75,8 @@ const DEFAULT_WIRE = {
   style: "solid",
 };
 
+const DEFAULT_CANVAS_BG = "#f6f1e8";
+
 const WIRE_STYLES = {
   solid: "",
   dashed: "8 6",
@@ -91,6 +93,7 @@ const state = {
   pan: null,
   nextId: 1,
   typeCounts: {},
+  canvasBackground: "",
   view: {
     scale: 1,
     offsetX: 0,
@@ -185,6 +188,16 @@ function describePortRef(ref) {
   return `${mod.name}:${port.name}`;
 }
 
+function isClockPort(mod, port) {
+  if (!mod || !port) {
+    return false;
+  }
+  if (mod.type !== "reg") {
+    return false;
+  }
+  return port.clock === true || port.name === "CLK";
+}
+
 function escapeXml(value) {
   return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&apos;");
 }
@@ -198,6 +211,18 @@ function applyModuleAppearance(el, mod) {
   }
   if (Number.isFinite(mod.strokeWidth)) {
     el.style.setProperty("--module-stroke-width", `${mod.strokeWidth}px`);
+  }
+}
+
+function getCanvasBackgroundColor() {
+  return state.canvasBackground || DEFAULT_CANVAS_BG;
+}
+
+function applyCanvasBackground() {
+  if (state.canvasBackground) {
+    canvas.style.background = state.canvasBackground;
+  } else {
+    canvas.style.background = "";
   }
 }
 
@@ -359,6 +384,7 @@ function createModule(type, x, y) {
       name: port.name,
       side: port.side,
       offset: port.offset,
+      clock: port.clock === true,
     })),
   };
   if (type === "mux") {
@@ -578,9 +604,13 @@ function renderModules() {
     el.appendChild(header);
 
     mod.ports.forEach((port) => {
+      const clockPort = isClockPort(mod, port);
+      if (clockPort && port.side !== "top" && port.side !== "bottom") {
+        port.side = "bottom";
+      }
       const local = getPortLocalPosition(mod, port);
       const portEl = document.createElement("div");
-      portEl.className = "port";
+      portEl.className = clockPort ? "port clock-port" : "port";
       portEl.style.left = `${local.x}px`;
       portEl.style.top = `${local.y}px`;
       portEl.dataset.portId = port.id;
@@ -590,6 +620,18 @@ function renderModules() {
         handlePortClick(event, mod, port);
       });
 
+      el.appendChild(portEl);
+
+      if (clockPort) {
+        const marker = document.createElement("div");
+        marker.className = "clock-marker";
+        marker.dataset.side = port.side;
+        marker.style.left = `${local.x}px`;
+        marker.style.top = `${local.y}px`;
+        el.appendChild(marker);
+        return;
+      }
+
       const label = document.createElement("div");
       label.className = "port-label";
       label.dataset.side = port.side;
@@ -597,7 +639,6 @@ function renderModules() {
       label.style.top = `${local.y}px`;
       label.textContent = port.name;
 
-      el.appendChild(portEl);
       el.appendChild(label);
     });
 
@@ -819,6 +860,29 @@ function makeButton(label, className, onClick) {
   return button;
 }
 
+function renderCanvasProperties() {
+  propertiesContent.appendChild(
+    makeField(
+      "Canvas Background",
+      makeColorInput(state.canvasBackground || DEFAULT_CANVAS_BG, (value) => {
+        state.canvasBackground = value;
+        applyCanvasBackground();
+      })
+    )
+  );
+
+  const resetRow = document.createElement("div");
+  resetRow.className = "action-row";
+  resetRow.appendChild(
+    makeButton("Reset Background", "btn-accent", () => {
+      state.canvasBackground = "";
+      applyCanvasBackground();
+      renderProperties();
+    })
+  );
+  propertiesContent.appendChild(resetRow);
+}
+
 function renderModuleProperties(mod) {
   propertiesContent.appendChild(
     makeField(
@@ -850,7 +914,7 @@ function renderModuleProperties(mod) {
 
   const strokeWidthField = makeField(
     "Stroke Width",
-    makeNumberInput(Number.isFinite(mod.strokeWidth) ? mod.strokeWidth : 1, { min: 0, max: 8, step: 0.2 }, (value) => {
+    makeNumberInput(Number.isFinite(mod.strokeWidth) ? mod.strokeWidth : 2, { min: 0, max: 8, step: 0.2 }, (value) => {
       mod.strokeWidth = clamp(value, 0, 8);
       renderModules();
     })
@@ -1004,20 +1068,22 @@ function renderModuleProperties(mod) {
       renderModules();
     });
 
-    const sideSelect = makeSelect(
-      [
-        { value: "left", label: "Left" },
-        { value: "right", label: "Right" },
-        { value: "top", label: "Top" },
-        { value: "bottom", label: "Bottom" },
-      ],
-      port.side,
-      (value) => {
-        port.side = value;
-        renderModules();
-        updateWires();
-      }
-    );
+    const sideOptions = isClockPort(mod, port)
+      ? [
+          { value: "top", label: "Top" },
+          { value: "bottom", label: "Bottom" },
+        ]
+      : [
+          { value: "left", label: "Left" },
+          { value: "right", label: "Right" },
+          { value: "top", label: "Top" },
+          { value: "bottom", label: "Bottom" },
+        ];
+    const sideSelect = makeSelect(sideOptions, port.side, (value) => {
+      port.side = value;
+      renderModules();
+      updateWires();
+    });
 
     const offsetInput = makeNumberInput(Math.round(port.offset * 100), { min: 0, max: 100, step: 1 }, (value) => {
       port.offset = clamp(value / 100, 0, 1);
@@ -1170,6 +1236,7 @@ function renderWireProperties(wire) {
 
 function renderProperties() {
   propertiesContent.innerHTML = "";
+  renderCanvasProperties();
   if (!state.selection) {
     const empty = document.createElement("div");
     empty.className = "empty-state";
@@ -1235,6 +1302,7 @@ function deleteSelected() {
 
 function serializeState() {
   return {
+    canvasBackground: state.canvasBackground,
     modules: state.modules.map((mod) => ({
       id: mod.id,
       type: mod.type,
@@ -1292,6 +1360,8 @@ function loadState(data) {
     alert("Invalid diagram data.");
     return;
   }
+  state.canvasBackground = typeof data.canvasBackground === "string" ? data.canvasBackground : "";
+  applyCanvasBackground();
   state.modules = data.modules.map((mod) => {
     const nameSize = Number.isFinite(mod.nameSize) ? mod.nameSize : DEFAULT_MODULE.nameSize;
     const showType = mod.showType !== false;
@@ -1543,7 +1613,7 @@ function resetView() {
 }
 
 function buildExportSvg(options) {
-  const background = options && options.transparent ? "" : "#f6f1e8";
+  const background = options && options.transparent ? "" : getCanvasBackgroundColor();
   const useBounds = options && options.fitToBounds;
   const padding = 32;
   const bounds = useBounds ? computeDiagramBounds() : null;
@@ -1630,6 +1700,21 @@ function buildExportSvg(options) {
 
     mod.ports.forEach((port) => {
       const local = getPortLocalPosition(mod, port);
+      if (isClockPort(mod, port)) {
+        const size = 12;
+        if (port.side === "bottom") {
+          const points = `${local.x - size / 2} ${local.y} ${local.x + size / 2} ${local.y} ${local.x} ${local.y - size}`;
+          parts.push(
+            `<polygon points="${points}" fill="none" stroke="${stroke}" stroke-width="${Math.max(1, strokeWidth)}"></polygon>`
+          );
+        } else {
+          const points = `${local.x - size / 2} ${local.y} ${local.x + size / 2} ${local.y} ${local.x} ${local.y + size}`;
+          parts.push(
+            `<polygon points="${points}" fill="none" stroke="${stroke}" stroke-width="${Math.max(1, strokeWidth)}"></polygon>`
+          );
+        }
+        return;
+      }
       parts.push(`<circle cx="${local.x}" cy="${local.y}" r="5" fill="#1d262b" stroke="#f2c14e" stroke-width="2"></circle>`);
       const offset = 8;
       let labelX = local.x;
@@ -1738,6 +1823,7 @@ initPalette();
 initButtons();
 initCanvasEvents();
 applyViewTransform();
+applyCanvasBackground();
 renderModules();
 updateWires();
 renderProperties();
