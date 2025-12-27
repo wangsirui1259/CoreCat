@@ -4,7 +4,7 @@
  */
 
 import { state, canvas } from './state.js';
-import { NS, MUX_DEFAULT, DEFAULT_CANVAS_BG } from './constants.js';
+import { NS, MUX_DEFAULT, EXTENDER_DEFAULT, DEFAULT_CANVAS_BG } from './constants.js';
 
 /**
  * 将值限制在指定范围内
@@ -114,6 +114,16 @@ export function getMuxCut(mod) {
 }
 
 /**
+ * 获取Extender顶部斜边偏移
+ */
+export function getExtenderOffset(mod) {
+  const height = Number.isFinite(mod.height) ? mod.height : 0;
+  const rawOffset = Math.round(height * EXTENDER_DEFAULT.slopeRatio);
+  const maxOffset = Math.max(EXTENDER_DEFAULT.minOffset, height - EXTENDER_DEFAULT.edgePadding);
+  return clamp(rawOffset, EXTENDER_DEFAULT.minOffset, maxOffset);
+}
+
+/**
  * 计算MUX最小高度
  */
 export function muxMinHeight(width) {
@@ -168,6 +178,25 @@ export function buildMuxSvgBackground(mod) {
   // 梯形路径：左上 -> 右上(下移cut) -> 右下(上移cut) -> 左下
   const sw2 = strokeWidth / 2;
   const path = `M ${sw2} ${sw2} L ${width - sw2} ${cut} L ${width - sw2} ${height - cut} L ${sw2} ${height - sw2} Z`;
+
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'><path d='${path}' fill='${fillColor}' stroke='${strokeColor}' stroke-width='${strokeWidth}' stroke-linejoin='round'/></svg>`;
+
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
+/**
+ * 构建Extender SVG背景
+ */
+export function buildExtenderSvgBackground(mod) {
+  const width = mod.width;
+  const height = mod.height;
+  const offset = getExtenderOffset(mod);
+  const strokeColor = mod.strokeColor || 'rgba(179, 120, 63, 0.7)';
+  const strokeWidth = Number.isFinite(mod.strokeWidth) ? mod.strokeWidth : 2;
+  const fillColor = mod.fill || 'rgba(255, 253, 249, 0.95)';
+  const sw2 = strokeWidth / 2;
+  const topLeftY = Math.max(sw2, offset);
+  const path = `M ${sw2} ${topLeftY} L ${width - sw2} ${sw2} L ${width - sw2} ${height - sw2} L ${sw2} ${height - sw2} Z`;
 
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'><path d='${path}' fill='${fillColor}' stroke='${strokeColor}' stroke-width='${strokeWidth}' stroke-linejoin='round'/></svg>`;
 

@@ -47,6 +47,15 @@ export const MODULE_LIBRARY = {
       { name: "Out", side: "right", offset: 0.5 },
     ],
   },
+  extender: {
+    label: "Extender",
+    width: 160,
+    height: 60,
+    ports: [
+      { name: "In", side: "left", offset: 0.65 },
+      { name: "Out", side: "right", offset: 0.5 },
+    ],
+  },
   mux: {
     label: "MUX",
     width: 60,
@@ -70,6 +79,12 @@ export const MUX_DEFAULT = {
   controlOffsetBottom: 0.6,
   slopeAngle: 60,
   minRight: 24,
+};
+
+export const EXTENDER_DEFAULT = {
+  slopeRatio: 0.25,
+  minOffset: 10,
+  edgePadding: 18,
 };
 
 export const DEFAULT_WIRE = {

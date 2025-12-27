@@ -5,7 +5,7 @@
 
 import { state, canvas } from './state.js';
 import { MODULE_LIBRARY, DEFAULT_MODULE, DEFAULT_WIRE, WIRE_STYLES, DEFAULT_CANVAS_BG, MUX_DEFAULT } from './constants.js';
-import { escapeXml, getMuxCut, getCanvasBackgroundColor, applyCanvasBackground, ensureMuxGeometry } from './utils.js';
+import { escapeXml, getMuxCut, getExtenderOffset, getCanvasBackgroundColor, applyCanvasBackground, ensureMuxGeometry } from './utils.js';
 import { getPortLocalPosition, getPortPositionByRef } from './port.js';
 import { buildWirePath, wireLabelPosition } from './wire.js';
 import { ensureMuxPorts } from './module.js';
@@ -128,6 +128,12 @@ export function buildExportSvg(options) {
     if (mod.type === "mux") {
       const cut = getMuxCut(mod);
       const points = `0 0 ${mod.width} ${cut} ${mod.width} ${mod.height - cut} 0 ${mod.height}`;
+      parts.push(
+        `<polygon points="${points}" fill="${fill}" stroke="${stroke}" stroke-opacity="${strokeOpacity}" stroke-width="${strokeWidth}"></polygon>`
+      );
+    } else if (mod.type === "extender") {
+      const offset = getExtenderOffset(mod);
+      const points = `0 ${offset} ${mod.width} 0 ${mod.width} ${mod.height} 0 ${mod.height}`;
       parts.push(
         `<polygon points="${points}" fill="${fill}" stroke="${stroke}" stroke-opacity="${strokeOpacity}" stroke-width="${strokeWidth}"></polygon>`
       );

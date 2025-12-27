@@ -5,7 +5,7 @@
 
 import { state, moduleLayer, moduleElements } from './state.js';
 import { MODULE_LIBRARY, DEFAULT_MODULE, MUX_DEFAULT } from './constants.js';
-import { uid, isClockPort, ensureMuxGeometry, buildMuxSvgBackground } from './utils.js';
+import { uid, isClockPort, ensureMuxGeometry, buildMuxSvgBackground, buildExtenderSvgBackground } from './utils.js';
 import { getPortLocalPosition } from './port.js';
 
 /**
@@ -152,12 +152,16 @@ export function renderModules(selectCallback, startModuleDragCallback, handlePor
     if (mod.type === "mux" && !mod.muxControlSide) {
       mod.muxControlSide = MUX_DEFAULT.controlSide;
     }
-    
+
     if (mod.type === "mux") {
       muxCut = ensureMuxGeometry(mod);
       el.style.height = `${mod.height}px`;
       el.style.setProperty("--mux-cut", `${muxCut}px`);
       el.style.background = buildMuxSvgBackground(mod);
+      el.style.backgroundSize = '100% 100%';
+    }
+    if (mod.type === "extender") {
+      el.style.background = buildExtenderSvgBackground(mod);
       el.style.backgroundSize = '100% 100%';
     }
     applyModuleAppearance(el, mod);

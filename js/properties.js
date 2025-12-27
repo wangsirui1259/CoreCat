@@ -285,8 +285,8 @@ function renderModuleProperties(mod, renderModulesCallback, updateWiresCallback,
     renderModulesCallback();
     updateWiresCallback();
   });
-  heightInput = makeNumberInput(mod.height, { min: 120, max: 600, step: 1 }, (value) => {
-    mod.height = clamp(Math.round(value), 120, 600);
+  heightInput = makeNumberInput(mod.height, { min: 60, max: 600, step: 1 }, (value) => {
+    mod.height = clamp(Math.round(value), 60, 600);
     if (mod.type === "mux") {
       const beforeWidth = mod.width;
       const beforeHeight = mod.height;
@@ -580,10 +580,10 @@ function renderWireProperties(wire, updateWiresCallback, renderPropertiesCallbac
  */
 export function renderProperties(renderModulesCallback, updateWiresCallback, updateStatusCallback) {
   const renderPropertiesCallback = () => renderProperties(renderModulesCallback, updateWiresCallback, updateStatusCallback);
-  
+
   propertiesContent.innerHTML = "";
   renderCanvasProperties(renderPropertiesCallback);
-  
+
   if (!state.selection) {
     const empty = document.createElement("div");
     empty.className = "empty-state";

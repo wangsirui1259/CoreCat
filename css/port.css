@@ -59,6 +59,24 @@
   transform: translate(calc(-50% - 2px), calc(-100% - 2px));
 }
 
+/* extender 的端口标签：覆盖默认 */
+.palette-item.extender .port-label[data-side="left"] {
+  transform: translate(-50%, -50%);
+}
+
+.palette-item.extender .port-label[data-side="right"] {
+  transform: translate(-50%, -50%);
+}
+
+/* mux 的端口标签：覆盖默认 */
+.palette-item.mux .port-label[data-side="left"] {
+  transform: translate(-50%, -50%);
+}
+
+.palette-item.mux .port-label[data-side="right"] {
+  transform: translate(-50%, -50%);
+}
+
 .clock-marker {
   position: absolute;
   width: 24px;
