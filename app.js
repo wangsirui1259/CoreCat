@@ -138,6 +138,9 @@ function getPortById(mod, portId) {
 }
 
 function getPortLocalPosition(mod, port) {
+  // 获取边框宽度，默认为 1px（与 DEFAULT_MODULE. strokeWidth 保持一致）
+  const borderWidth = Number.isFinite(mod.strokeWidth) ? mod.strokeWidth : 1;
+
   if (port.side === "slopeTop" || port.side === "slopeBottom") {
     const cut = getMuxCut(mod);
     const t = clamp(port.offset, 0, 1);
@@ -145,15 +148,16 @@ function getPortLocalPosition(mod, port) {
     return { x: mod.width * t, y };
   }
   if (port.side === "left") {
-    return { x: 0, y: mod.height * port.offset };
+    return { x: borderWidth / 2, y: mod.height * port.offset };
   }
   if (port.side === "right") {
-    return { x: mod.width, y: mod.height * port.offset };
+    return { x: mod.width - borderWidth / 2, y: mod.height * port.offset };
   }
   if (port.side === "top") {
-    return { x: mod.width * port.offset, y: 0 };
+    return { x: mod.width * port.offset, y: borderWidth / 2 };
   }
-  return { x: mod.width * port.offset, y: mod.height };
+  // bottom
+  return { x: mod.width * port.offset, y: mod.height - borderWidth / 2 };
 }
 
 function getPortPosition(mod, port) {
@@ -1070,15 +1074,15 @@ function renderModuleProperties(mod) {
 
     const sideOptions = isClockPort(mod, port)
       ? [
-          { value: "top", label: "Top" },
-          { value: "bottom", label: "Bottom" },
-        ]
+        { value: "top", label: "Top" },
+        { value: "bottom", label: "Bottom" },
+      ]
       : [
-          { value: "left", label: "Left" },
-          { value: "right", label: "Right" },
-          { value: "top", label: "Top" },
-          { value: "bottom", label: "Bottom" },
-        ];
+        { value: "left", label: "Left" },
+        { value: "right", label: "Right" },
+        { value: "top", label: "Top" },
+        { value: "bottom", label: "Bottom" },
+      ];
     const sideSelect = makeSelect(sideOptions, port.side, (value) => {
       port.side = value;
       renderModules();

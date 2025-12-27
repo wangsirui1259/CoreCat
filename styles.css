@@ -267,7 +267,8 @@ button.danger {
 
 .module {
   position: absolute;
-  background: var(--module-fill, linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(245, 239, 229, 0.92)));
+  --module-fill-default: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(245, 239, 229, 0.92));
+  background: var(--module-fill, var(--module-fill-default));
   border: var(--module-stroke-width, 1px) solid var(--module-stroke, rgba(31, 38, 43, 0.18));
   border-radius: 14px;
   box-shadow: 0 8px 16px rgba(17, 24, 28, 0.18);
@@ -331,6 +332,7 @@ button.danger {
   border: none;
   box-shadow: none;
   border-radius: 0;
+  --module-stroke: rgba(150, 108, 203, 0.6);
 }
 
 .module.mux::before {
@@ -338,7 +340,7 @@ button.danger {
   position: absolute;
   inset: 0;
   border-radius: 0;
-  background: var(--module-fill, linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(245, 239, 229, 0.92)));
+  background: var(--module-fill, var(--module-fill-default));
   border: var(--module-stroke-width, 1px) solid var(--module-stroke, rgba(31, 38, 43, 0.24));
   clip-path: polygon(0 0,
       100% var(--mux-cut, 0px),
@@ -353,19 +355,27 @@ button.danger {
   box-shadow: 0 8px 16px rgba(17, 24, 28, 0.18), 0 0 0 2px rgba(242, 193, 78, 0.85);
 }
 
+@supports (background: color-mix(in srgb, #000 10%, white)) {
+  .module {
+    --module-fill-default: linear-gradient(160deg,
+        color-mix(in srgb, var(--module-stroke, #1d262b) 16%, white),
+        color-mix(in srgb, var(--module-stroke, #1d262b) 8%, white));
+  }
+}
+
 .module.mux .module-header,
 .module.mux .port,
 .module.mux .port-label {
   z-index: 1;
 }
 
-.port {
+/* .port {
   position: absolute;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #1d262b;
-  border: 2px solid #f2c14e;
+  background: color-mix(in srgb, var(--module-stroke) 50%, black);
+  border-color: color-mix(in srgb, var(--module-stroke) 50%, black);
   transform: translate(-50%, -50%);
   cursor: crosshair;
 }
@@ -376,35 +386,26 @@ button.danger {
 
 .port.clock-port {
   opacity: 0;
-}
-
-/* .clock-marker {
-  position: absolute;
-  width: 14px;
-  height: 12px;
-  border: 12px solid var(--module-stroke, #1d262b);
-  background: transparent;
-  clip-path: polygon(0 0, 100% 0, 50% 60%);
-  pointer-events: none;
-  transform: translate(-50%, 0);
-  z-index: 1;
 } */
 
-.clock-marker {
+.port {
   position: absolute;
-  width: 24px;
+  width: 12px;
   height: 12px;
-  margin-top: -2px;
-  background: url("data: image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M1 1 L23 1 L12 11 Z' fill='none' stroke='%231d262b' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
-  background-size: contain;
-  pointer-events: none;
-  transform: translate(-50%, 0);
-  z-index: 1;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--module-stroke) 50%, black);
+  cursor: crosshair;
+  /* 让圆心对准坐标点 */
+  transform: translate(calc(-50% - 2px), calc(-50% - 2px));
 }
 
-.clock-marker[data-side="bottom"] {
-  background: url("data: image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M12 1 L23 11 L1 11 Z' fill='none' stroke='%231d262b' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
-  transform: translate(-50%, -100%);
+.port:hover {
+  /* hover 时保持居中，同时放大 */
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.port.clock-port {
+  opacity: 0;
 }
 
 .port-label {
@@ -416,28 +417,58 @@ button.danger {
   white-space: nowrap;
 }
 
+/* 左侧端口：标签在端口右边，向右偏移 */
 .port-label[data-side="left"] {
-  transform: translate(8px, -50%);
+  transform: translate(6px, calc(-50% - 2px));
 }
 
+/* 右侧端口：标签在端口左边，向左偏移 */
 .port-label[data-side="right"] {
-  transform: translate(calc(-100% - 8px), -50%);
+  transform: translate(calc(-100% - 10px), calc(-50% - 2px));
 }
 
+/* 顶部端口：标签在端口下方 */
 .port-label[data-side="top"] {
-  transform: translate(-50%, 8px);
+  transform: translate(calc(-50% - 2px), 3px);
 }
 
+/* 底部端口：标签在端口上方 */
 .port-label[data-side="bottom"] {
-  transform: translate(-50%, calc(-100% - 8px));
+  transform: translate(calc(-50% - 2px), calc(-100% - 6px));
 }
 
 .port-label[data-side="slopeTop"] {
-  transform: translate(-50%, 8px);
+  transform: translate(calc(-50% - 2px), 2px);
 }
 
 .port-label[data-side="slopeBottom"] {
-  transform: translate(-50%, calc(-100% - 8px));
+  transform: translate(calc(-50% - 2px), calc(-100% - 2px));
+}
+
+.clock-marker {
+  position: absolute;
+  width: 24px;
+  height: 12px;
+  margin-top: -3px;
+  /* 使用与 port 相同的颜色 */
+  background-color: color-mix(in srgb, var(--module-stroke) 50%, black);
+  /* SVG 作为遮罩 */
+  -webkit-mask: url("data: image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M1 1 L23 1 L12 11 Z' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M1 1 L23 1 L12 11 Z' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  pointer-events: none;
+  transform: translate(calc(-50% - 1px), 0);
+  z-index: 1;
+}
+
+.clock-marker[data-side="bottom"] {
+  margin-top: 0;
+  -webkit-mask: url("data: image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M12 1 L23 11 L1 11 Z' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M12 1 L23 11 L1 11 Z' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  transform: translate(calc(-50% - 2px), calc(-100% - 1px));
 }
 
 path.wire {
