@@ -1,5 +1,9 @@
 # CoreCat - 轻松绘制模块图
 
+<div align="center">
+  <img height="128px" src="svg/CoreCat_logo.png" style="max-width: 100%; height: auto; max-height: 128px;">
+</div>
+
 CoreCat 是一个轻量的浏览器端模块/连线绘制工具，用于快速搭建模块图（ALU、寄存器、逻辑块、Mux 等），支持可视化编辑端口、连线与导出。
 
 ## 主要功能

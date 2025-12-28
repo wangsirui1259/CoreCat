@@ -411,7 +411,10 @@ export function loadState(data, callbacks) {
   refreshIdCounter();
   state.modules.forEach((mod) => {
     if (mod.type === "mux") {
-      ensureMuxPorts(mod);
+      const hasPorts = Array.isArray(mod.ports) && mod.ports.length > 0;
+      if (!hasPorts) {
+        ensureMuxPorts(mod);
+      }
       ensureMuxGeometry(mod);
     }
   });

@@ -48,7 +48,7 @@
 
 /* 底部端口：标签在端口上方 */
 .port-label[data-side="bottom"] {
-  transform: translate(calc(-50% - 2px), calc(-100% - 6px));
+  transform: translate(calc(-50% - 2px), calc(-100% - 10px));
 }
 
 /* MUX上下端口 */

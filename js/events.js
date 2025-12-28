@@ -236,7 +236,9 @@ function buildModuleFromJson(data, usedModuleIds) {
   });
 
   if (type === "mux") {
-    ensureMuxPorts(moduleItem);
+    if (moduleItem.ports.length === 0) {
+      ensureMuxPorts(moduleItem);
+    }
     ensureMuxGeometry(moduleItem);
   }
 
