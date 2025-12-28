@@ -43,7 +43,7 @@ export function computeDiagramBounds() {
     }
     extendPoint(start.x, start.y);
     extendPoint(end.x, end.y);
-    
+
     if (Array.isArray(wire.bends) && wire.bends.length > 0) {
       wire.bends.forEach((bend) => {
         extendPoint(bend.x, bend.y);
@@ -87,10 +87,10 @@ export function buildExportSvg(options) {
   parts.push(
     "<style>",
     ".wire{fill:none;stroke-linecap:round;stroke-linejoin:round;}",
-    ".module-name{font-family:MiSans VF,Trebuchet MS,Lucida Sans Unicode,Lucida Grande,sans-serif;font-size:16px;font-weight:700;fill:#1d262b;}",
-    ".module-type{font-family:MiSans VF,Trebuchet MS,Lucida Sans Unicode,Lucida Grande,sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;fill:#6b6f6f;}",
-    ".port-label{font-family:Maple Mono Normal NF CN,Consolas,Courier New,monospace;font-size:14px;fill:#1d262b;}",
-    ".wire-label{font-family:Maple Mono Normal NF CN,Consolas,Courier New,monospace;font-size:12px;fill:#1d262b;}",
+    ".module-name{font-family:MiSans VF,Noto Sans,Trebuchet MS,Lucida Sans Unicode,Lucida Grande,sans-serif;font-size:16px;font-weight:700;fill:#1d262b;}",
+    ".module-type{font-family:MiSans VF,Noto Sans,Trebuchet MS,Lucida Sans Unicode,Lucida Grande,sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;fill:#6b6f6f;}",
+    ".port-label{font-family:Maple Mono Normal NF CN,Maple Mono NF CN,Consolas,Courier New,monospace;font-size:14px;fill:#1d262b;}",
+    ".wire-label{font-family:Maple Mono Normal NF CN,Maple Mono NF CN,Consolas,Courier New,monospace;font-size:12px;fill:#1d262b;}",
     "</style>"
   );
   if (background) {
@@ -390,7 +390,7 @@ export function loadState(data, callbacks) {
       ensureMuxGeometry(mod);
     }
   });
-  
+
   if (callbacks) {
     callbacks.renderModules();
     callbacks.updateWires();

@@ -25,7 +25,7 @@
 .port-label {
   position: absolute;
   font-size: 14px;
-  font-family: "Maple Mono Normal NF CN", "Consolas", "Courier New", monospace;
+  font-family: "Maple Mono Normal NF CN", "Maple Mono NF CN", "Consolas", "Courier New", monospace;
   color: #1d262b;
   pointer-events: none;
   white-space: nowrap;
