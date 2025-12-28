@@ -151,6 +151,34 @@ function renderModuleProperties(mod, renderModulesCallback, updateWiresCallback,
     )
   );
 
+  const positionField = document.createElement("div");
+  positionField.className = "field";
+  const positionLabel = document.createElement("label");
+  positionLabel.textContent = "Position";
+  const positionRow = document.createElement("div");
+  positionRow.className = "field-row";
+  const xInput = makeNumberInput(Number.isFinite(mod.x) ? mod.x : 0, { step: 1 }, (value) => {
+    mod.x = Math.round(value);
+    xInput.value = mod.x;
+    renderModulesCallback();
+    updateWiresCallback();
+  });
+  xInput.placeholder = "X";
+  xInput.title = "X position";
+  const yInput = makeNumberInput(Number.isFinite(mod.y) ? mod.y : 0, { step: 1 }, (value) => {
+    mod.y = Math.round(value);
+    yInput.value = mod.y;
+    renderModulesCallback();
+    updateWiresCallback();
+  });
+  yInput.placeholder = "Y";
+  yInput.title = "Y position";
+  positionRow.appendChild(xInput);
+  positionRow.appendChild(yInput);
+  positionField.appendChild(positionLabel);
+  positionField.appendChild(positionRow);
+  propertiesContent.appendChild(positionField);
+
   const fillField = makeField(
     "Fill",
     makeColorInput(mod.fill || "#fffdf9", (value) => {
