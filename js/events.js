@@ -5,7 +5,7 @@
 
 import { state, canvas, moduleLayer, wireLayer, moduleElements, statusEl } from './state.js';
 import { MODULE_LIBRARY } from './constants.js';
-import { getCanvasPoint, getModuleById, applyCanvasBackground, clamp, isTypingTarget } from './utils.js';
+import { getCanvasPoint, getModuleById, applyCanvasBackground, clamp, isTypingTarget, uid } from './utils.js';
 import { createModule, renderModules } from './module.js';
 import { createWire, updateWires, syncSvgSize } from './wire.js';
 import { renderProperties } from './properties.js';
@@ -19,6 +19,8 @@ let onPanHandler = null;
 let endPanHandler = null;
 let onWireDragHandler = null;
 let endWireDragHandler = null;
+const MODULE_CLIPBOARD_OFFSET = 24;
+let moduleClipboard = null;
 
 /**
  * 应用视图变换
@@ -110,6 +112,71 @@ function doUpdateWires() {
 
 function doRenderProperties() {
   renderProperties(doRenderModules, doUpdateWires, updateStatus);
+}
+
+function copySelectedModule(mod) {
+  moduleClipboard = {
+    data: {
+      type: mod.type,
+      name: mod.name,
+      x: mod.x,
+      y: mod.y,
+      width: mod.width,
+      height: mod.height,
+      nameSize: mod.nameSize,
+      showType: mod.showType,
+      fill: mod.fill,
+      strokeColor: mod.strokeColor,
+      strokeWidth: mod.strokeWidth,
+      muxInputs: mod.muxInputs,
+      muxControlSide: mod.muxControlSide,
+      ports: Array.isArray(mod.ports)
+        ? mod.ports.map((port) => ({
+            name: port.name,
+            side: port.side,
+            offset: port.offset,
+            clock: port.clock === true,
+          }))
+        : [],
+    },
+    pasteOffset: 0,
+  };
+}
+
+function pasteClipboardModule() {
+  if (!moduleClipboard || !moduleClipboard.data) {
+    return;
+  }
+  const data = moduleClipboard.data;
+  const offset = MODULE_CLIPBOARD_OFFSET + moduleClipboard.pasteOffset;
+  moduleClipboard.pasteOffset += MODULE_CLIPBOARD_OFFSET;
+  const moduleItem = {
+    id: uid("mod"),
+    type: data.type,
+    name: data.name,
+    x: Math.round((data.x || 0) + offset),
+    y: Math.round((data.y || 0) + offset),
+    width: data.width,
+    height: data.height,
+    nameSize: data.nameSize,
+    showType: data.showType,
+    fill: data.fill,
+    strokeColor: data.strokeColor,
+    strokeWidth: data.strokeWidth,
+    muxInputs: data.muxInputs,
+    muxControlSide: data.muxControlSide,
+    ports: Array.isArray(data.ports)
+      ? data.ports.map((port) => ({
+          id: uid("port"),
+          name: port.name,
+          side: port.side,
+          offset: port.offset,
+          clock: port.clock === true,
+        }))
+      : [],
+  };
+  state.modules.push(moduleItem);
+  select({ type: "module", id: moduleItem.id });
 }
 
 /**
@@ -498,6 +565,23 @@ export function initCanvasEvents() {
 export function initKeyboardEvents() {
   document.addEventListener("keydown", (event) => {
     if (isTypingTarget(document.activeElement)) {
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "c") {
+      if (state.selection && state.selection.type === "module") {
+        const mod = getModuleById(state.selection.id);
+        if (mod) {
+          copySelectedModule(mod);
+          event.preventDefault();
+        }
+      }
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "v") {
+      if (moduleClipboard && moduleClipboard.data) {
+        pasteClipboardModule();
+        event.preventDefault();
+      }
       return;
     }
     if (event.key === "Delete" || event.key === "Backspace") {
