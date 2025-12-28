@@ -298,15 +298,35 @@ function endPan() {
 
 /**
  * 开始连线拖拽
+ * @param {Event} event - 鼠标事件
+ * @param {Object} wire - 连线对象
+ * @param {number} bendIndex - 弯折点索引（-1 表示简单路由）
+ * @param {number} segmentIndex - 线段索引（智能路由用）
+ * @param {boolean} isHorizontal - 线段是否为水平方向（智能路由用）
  */
-function startWireDrag(event, wire, bendIndex = -1) {
+function startWireDrag(event, wire, bendIndex = -1, segmentIndex = undefined, isHorizontal = undefined) {
+  let origin;
+  
+  if (segmentIndex !== undefined && Array.isArray(wire.bends)) {
+    // 智能路由线段拖拽：保存所有弯折点的原始位置
+    // 线段结构：start -> bends[0] -> bends[1] -> ... -> bends[n-1] -> end
+    // 线段 0 连接 start 和 bends[0]，只影响 bends[0]
+    // 线段 i (0 < i < n) 连接 bends[i-1] 和 bends[i]，影响两个弯折点
+    // 线段 n 连接 bends[n-1] 和 end，只影响 bends[n-1]
+    origin = wire.bends.map(b => ({ x: b.x, y: b.y }));
+  } else if (bendIndex >= 0 && Array.isArray(wire.bends)) {
+    origin = { x: wire.bends[bendIndex].x, y: wire.bends[bendIndex].y };
+  } else {
+    origin = wire.bend;
+  }
+  
   state.dragWire = {
     id: wire.id,
     route: wire.route,
     bendIndex: bendIndex,
-    origin: bendIndex >= 0 && Array.isArray(wire.bends) 
-      ? { x: wire.bends[bendIndex].x, y: wire.bends[bendIndex].y }
-      : wire.bend,
+    segmentIndex: segmentIndex,
+    isHorizontal: isHorizontal,
+    origin: origin,
     startX: event.clientX,
     startY: event.clientY,
   };
@@ -333,7 +353,75 @@ function onWireDrag(event) {
   const dx = (event.clientX - state.dragWire.startX) / state.view.scale;
   const dy = (event.clientY - state.dragWire.startY) / state.view.scale;
   
-  if (state.dragWire.bendIndex >= 0 && Array.isArray(wire.bends)) {
+  if (state.dragWire.segmentIndex !== undefined && Array.isArray(wire.bends)) {
+    // 智能路由线段拖拽：移动线段保持直角
+    // 线段 segmentIndex 连接 points[segmentIndex] 和 points[segmentIndex + 1]
+    // points = [start, ...bends, end]，共有 bends.length + 2 个点
+    // 因此线段 0 是 start -> bends[0]
+    // 线段 1 是 bends[0] -> bends[1]
+    // 线段 n 是 bends[n-1] -> end
+    const segIdx = state.dragWire.segmentIndex;
+    const isHorizontal = state.dragWire.isHorizontal;
+    const origins = state.dragWire.origin;
+    const numBends = wire.bends.length;
+    
+    // 水平线段只能垂直移动（改变 y 值），垂直线段只能水平移动（改变 x 值）
+    if (isHorizontal) {
+      // 水平线段：移动时改变相关点的 y 坐标
+      // 线段 segIdx 的两个端点：
+      // - 如果 segIdx == 0：端点是 start 和 bends[0]，只能移动 bends[0] 的 y
+      // - 如果 segIdx == numBends：端点是 bends[numBends-1] 和 end，只能移动 bends[numBends-1] 的 y
+      // - 否则：端点是 bends[segIdx-1] 和 bends[segIdx]，移动两个点的 y
+      if (segIdx === 0) {
+        // 第一段：只影响 bends[0]
+        wire.bends[0] = {
+          x: origins[0].x,
+          y: Math.round(origins[0].y + dy),
+        };
+      } else if (segIdx === numBends) {
+        // 最后一段：只影响 bends[numBends-1]
+        wire.bends[numBends - 1] = {
+          x: origins[numBends - 1].x,
+          y: Math.round(origins[numBends - 1].y + dy),
+        };
+      } else {
+        // 中间段：影响 bends[segIdx-1] 和 bends[segIdx]
+        wire.bends[segIdx - 1] = {
+          x: origins[segIdx - 1].x,
+          y: Math.round(origins[segIdx - 1].y + dy),
+        };
+        wire.bends[segIdx] = {
+          x: origins[segIdx].x,
+          y: Math.round(origins[segIdx].y + dy),
+        };
+      }
+    } else {
+      // 垂直线段：移动时改变相关点的 x 坐标
+      if (segIdx === 0) {
+        // 第一段：只影响 bends[0]
+        wire.bends[0] = {
+          x: Math.round(origins[0].x + dx),
+          y: origins[0].y,
+        };
+      } else if (segIdx === numBends) {
+        // 最后一段：只影响 bends[numBends-1]
+        wire.bends[numBends - 1] = {
+          x: Math.round(origins[numBends - 1].x + dx),
+          y: origins[numBends - 1].y,
+        };
+      } else {
+        // 中间段：影响 bends[segIdx-1] 和 bends[segIdx]
+        wire.bends[segIdx - 1] = {
+          x: Math.round(origins[segIdx - 1].x + dx),
+          y: origins[segIdx - 1].y,
+        };
+        wire.bends[segIdx] = {
+          x: Math.round(origins[segIdx].x + dx),
+          y: origins[segIdx].y,
+        };
+      }
+    }
+  } else if (state.dragWire.bendIndex >= 0 && Array.isArray(wire.bends)) {
     const origin = state.dragWire.origin;
     wire.bends[state.dragWire.bendIndex] = {
       x: Math.round(origin.x + dx),
