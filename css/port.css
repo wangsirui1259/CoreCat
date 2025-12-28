@@ -51,6 +51,7 @@
   transform: translate(calc(-50% - 2px), calc(-100% - 6px));
 }
 
+/* MUX上下端口 */
 .port-label[data-side="slopeTop"] {
   transform: translate(calc(-50% - 2px), 8px);
 }

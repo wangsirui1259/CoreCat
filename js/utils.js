@@ -165,21 +165,61 @@ export function ensureMuxGeometry(mod, mode) {
 }
 
 /**
+ * 获取模块渐变填充的SVG定义和填充属性
+ * 与CSS中 color-mix 渐变一致，根据模块类型的 stroke 颜色生成渐变
+ */
+function getModuleGradientFill(mod, strokeColor) {
+  const useGradient = !mod.fill;
+  const gradientId = 'moduleGradient';
+  const fillAttr = useGradient ? `url(#${gradientId})` : (mod.fill || 'rgba(255, 253, 249, 0.95)');
+
+  // 根据 stroke 颜色生成渐变，模拟 CSS color-mix(in srgb, strokeColor 16%, white) 和 color-mix(in srgb, strokeColor 8%, white)
+  // 使用 stroke 颜色的淡色版本作为渐变
+  let gradientDef = '';
+  if (useGradient && strokeColor) {
+    // 解析 rgba 颜色
+    const rgbaMatch = strokeColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (rgbaMatch) {
+      const r = parseInt(rgbaMatch[1]);
+      const g = parseInt(rgbaMatch[2]);
+      const b = parseInt(rgbaMatch[3]);
+      // 16% stroke color mixed with white
+      const r1 = Math.round(r * 0.16 + 255 * 0.84);
+      const g1 = Math.round(g * 0.16 + 255 * 0.84);
+      const b1 = Math.round(b * 0.16 + 255 * 0.84);
+      // 8% stroke color mixed with white
+      const r2 = Math.round(r * 0.08 + 255 * 0.92);
+      const g2 = Math.round(g * 0.08 + 255 * 0.92);
+      const b2 = Math.round(b * 0.08 + 255 * 0.92);
+      gradientDef = `<defs><linearGradient id="${gradientId}" x1="0%" y1="0%" x2="70%" y2="100%"><stop offset="0%" stop-color="rgba(${r1}, ${g1}, ${b1}, 0.95)"/><stop offset="100%" stop-color="rgba(${r2}, ${g2}, ${b2}, 0.92)"/></linearGradient></defs>`;
+    } else {
+      // 如果无法解析颜色，使用默认渐变
+      gradientDef = `<defs><linearGradient id="${gradientId}" x1="0%" y1="0%" x2="70%" y2="100%"><stop offset="0%" stop-color="rgba(255, 255, 255, 0.95)"/><stop offset="100%" stop-color="rgba(245, 239, 229, 0.92)"/></linearGradient></defs>`;
+    }
+  } else if (useGradient) {
+    gradientDef = `<defs><linearGradient id="${gradientId}" x1="0%" y1="0%" x2="70%" y2="100%"><stop offset="0%" stop-color="rgba(255, 255, 255, 0.95)"/><stop offset="100%" stop-color="rgba(245, 239, 229, 0.92)"/></linearGradient></defs>`;
+  }
+  return { fillAttr, gradientDef };
+}
+
+/**
  * 构建MUX SVG背景
  */
 export function buildMuxSvgBackground(mod) {
   const width = mod.width;
   const height = mod.height;
   const cut = getMuxCut(mod);
+  // 默认颜色与 module.css 中 .module.mux 的 --module-stroke 一致
   const strokeColor = mod.strokeColor || 'rgba(150, 108, 203, 0.6)';
   const strokeWidth = Number.isFinite(mod.strokeWidth) ? mod.strokeWidth : 2;
-  const fillColor = mod.fill || 'rgba(255, 253, 249, 0.95)';
 
   // 梯形路径：左上 -> 右上(下移cut) -> 右下(上移cut) -> 左下
   const sw2 = strokeWidth / 2;
   const path = `M ${sw2} ${sw2} L ${width - sw2} ${cut} L ${width - sw2} ${height - cut} L ${sw2} ${height - sw2} Z`;
 
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'><path d='${path}' fill='${fillColor}' stroke='${strokeColor}' stroke-width='${strokeWidth}' stroke-linejoin='round'/></svg>`;
+  const { fillAttr, gradientDef } = getModuleGradientFill(mod, strokeColor);
+
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'>${gradientDef}<path d='${path}' fill='${fillAttr}' stroke='${strokeColor}' stroke-width='${strokeWidth}' stroke-linejoin='round'/></svg>`;
 
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
@@ -191,14 +231,16 @@ export function buildExtenderSvgBackground(mod) {
   const width = mod.width;
   const height = mod.height;
   const offset = getExtenderOffset(mod);
-  const strokeColor = mod.strokeColor || 'rgba(179, 120, 63, 0.7)';
+  // 默认颜色与 module.css 中 .module.extender 的 --module-stroke 一致
+  const strokeColor = mod.strokeColor || 'rgba(200, 110, 140, 0.8)';
   const strokeWidth = Number.isFinite(mod.strokeWidth) ? mod.strokeWidth : 2;
-  const fillColor = mod.fill || 'rgba(255, 253, 249, 0.95)';
   const sw2 = strokeWidth / 2;
   const topLeftY = Math.max(sw2, offset);
   const path = `M ${sw2} ${topLeftY} L ${width - sw2} ${sw2} L ${width - sw2} ${height - sw2} L ${sw2} ${height - sw2} Z`;
 
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'><path d='${path}' fill='${fillColor}' stroke='${strokeColor}' stroke-width='${strokeWidth}' stroke-linejoin='round'/></svg>`;
+  const { fillAttr, gradientDef } = getModuleGradientFill(mod, strokeColor);
+
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'>${gradientDef}<path d='${path}' fill='${fillAttr}' stroke='${strokeColor}' stroke-width='${strokeWidth}' stroke-linejoin='round'/></svg>`;
 
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
