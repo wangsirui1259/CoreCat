@@ -279,16 +279,36 @@ export function buildWirePath(wire, start, end) {
 
 /**
  * 获取连线手柄位置数组
- * 对于智能路由（SmartRoute，wire.bends 数组存在时），返回单个中心手柄，可以拖动整条线段
+ * 对于智能路由（SmartRoute，wire.bends 数组存在时），为每条线段返回一个手柄
  * 对于简单路由（wire.bend 单值），返回中间位置的手柄
  * 注意：wire.bends 仅由 setWireSmartBends() 设置，普通连线不会有此属性
  */
 export function getWireHandlePositions(wire, start, end) {
   if (Array.isArray(wire.bends) && wire.bends.length > 0) {
-    // 智能路由：计算所有弯折点的中心位置，返回单个手柄用于整体移动
-    const centerX = wire.bends.reduce((sum, b) => sum + b.x, 0) / wire.bends.length;
-    const centerY = wire.bends.reduce((sum, b) => sum + b.y, 0) / wire.bends.length;
-    return [{ x: centerX, y: centerY, index: -2 }]; // index -2 表示智能路由整体移动
+    // 智能路由：为每条线段创建一个手柄
+    // 线段由 start -> bends[0] -> bends[1] -> ... -> bends[n-1] -> end 组成
+    const handles = [];
+    const points = [start, ...wire.bends, end];
+    
+    for (let i = 0; i < points.length - 1; i++) {
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      // 手柄位置在线段中点
+      const midX = (p1.x + p2.x) / 2;
+      const midY = (p1.y + p2.y) / 2;
+      // 判断线段方向：智能路由只产生水平和垂直线段
+      // 使用精确的 Y 坐标比较来判断是否为水平线段
+      const isHorizontal = p1.y === p2.y;
+      // segmentIndex 表示线段索引，direction 表示线段方向（用于约束拖拽）
+      handles.push({ 
+        x: midX, 
+        y: midY, 
+        segmentIndex: i, 
+        isHorizontal: isHorizontal,
+        index: i  // 保持兼容性
+      });
+    }
+    return handles;
   }
   
   if (wire.route === "V") {
@@ -394,7 +414,8 @@ export function updateWires(selectCallback, startWireDragCallback) {
         handle.addEventListener("pointerdown", (event) => {
           event.stopPropagation();
           if (startWireDragCallback) {
-            startWireDragCallback(event, wire, pos.index);
+            // 传递额外信息用于智能路由线段调整
+            startWireDragCallback(event, wire, pos.index, pos.segmentIndex, pos.isHorizontal);
           }
         });
         wireLayer.appendChild(handle);
