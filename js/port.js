@@ -16,8 +16,15 @@ export function getPortLocalPosition(mod, port) {
   if (port.side === "slopeTop" || port.side === "slopeBottom") {
     const cut = getMuxCut(mod);
     const t = clamp(port.offset, 0, 1);
-    const y = port.side === "slopeTop" ? cut * t : mod.height - cut * t;
-    return { x: mod.width * t, y };
+    const sw2 = borderWidth / 2;
+    // x is the same for both slopeTop and slopeBottom
+    const x = sw2 + t * (mod.width - 2 * sw2);
+    // slopeTop: from (sw2, sw2) to (width - sw2, cut)
+    // slopeBottom: from (sw2, height - sw2) to (width - sw2, height - cut)
+    const y = port.side === "slopeTop"
+      ? sw2 + t * (cut - sw2)
+      : (mod.height - sw2) - t * (cut - sw2);
+    return { x, y };
   }
   if (port.side === "left") {
     return { x: borderWidth / 2, y: mod.height * port.offset };

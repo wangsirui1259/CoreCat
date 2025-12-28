@@ -52,7 +52,7 @@ export const MODULE_LIBRARY = {
     width: 160,
     height: 60,
     ports: [
-      { name: "In", side: "left", offset: 0.65 },
+      { name: "In", side: "left", offset: 0.6 },
       { name: "Out", side: "right", offset: 0.5 },
     ],
   },

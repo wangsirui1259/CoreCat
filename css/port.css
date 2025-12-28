@@ -53,41 +53,42 @@
 
 /* MUX上下端口 */
 .port-label[data-side="slopeTop"] {
-  transform: translate(calc(-50% - 2px), 8px);
+  transform: translate(calc(-50% - 1px), 6px);
 }
 
 .port-label[data-side="slopeBottom"] {
-  transform: translate(calc(-50% - 2px), calc(-100% - 2px));
+  transform: translate(calc(-50% + 1px), calc(-100% - 6px));
 }
 
 /* extender 的端口标签：覆盖默认 */
-.module.extender .port{
+.module.extender .port {
   transform: translate(-50%, -50%);
 }
 
-.module.mux .port{
+.module.mux .port {
   transform: translate(-50%, -50%);
 }
 
-.module.extender .port-label[data-side="left"]{
+.module.extender .port-label[data-side="left"] {
   transform: translate(7px, -50%);
 }
 
-.module.extender .port-label[data-side="right"]{
+.module.extender .port-label[data-side="right"] {
   transform: translate(calc(-100% - 8px), -50%);
 }
 
-.module.mux .port{
+.module.mux .port {
   transform: translate(-50%, -50%);
 }
 
-.module.mux .port-label[data-side="left"]{
+.module.mux .port-label[data-side="left"] {
   transform: translate(7px, -50%);
 }
 
-.module.mux .port-label[data-side="right"]{
+.module.mux .port-label[data-side="right"] {
   transform: translate(calc(-100% - 8px), -50%);
 }
+
 /* 
 .module.mux .port-label[data-side="top"] {
   transform: translate(calc(-50% - 2px), 3px);
