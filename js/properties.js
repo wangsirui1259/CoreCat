@@ -301,8 +301,8 @@ function renderModuleProperties(mod, renderModulesCallback, updateWiresCallback,
   const sizeRow = document.createElement("div");
   sizeRow.className = "field-row";
   let heightInput;
-  const widthInput = makeNumberInput(mod.width, { min: 60, max: 300, step: 1 }, (value) => {
-    mod.width = clamp(Math.round(value), 60, 300);
+  const widthInput = makeNumberInput(mod.width, { min: 40, max: 1000, step: 1 }, (value) => {
+    mod.width = clamp(Math.round(value), 40, 1000);
     if (mod.type === "mux") {
       const beforeHeight = mod.height;
       ensureMuxGeometry(mod, "keepWidth");
@@ -313,8 +313,8 @@ function renderModuleProperties(mod, renderModulesCallback, updateWiresCallback,
     renderModulesCallback();
     updateWiresCallback();
   });
-  heightInput = makeNumberInput(mod.height, { min: 60, max: 1100, step: 1 }, (value) => {
-    mod.height = clamp(Math.round(value), 60, 1100);
+  heightInput = makeNumberInput(mod.height, { min: 60, max: 1200, step: 1 }, (value) => {
+    mod.height = clamp(Math.round(value), 60, 1200);
     if (mod.type === "mux") {
       const beforeWidth = mod.width;
       const beforeHeight = mod.height;

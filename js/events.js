@@ -4,13 +4,13 @@
  */
 
 import { state, canvas, moduleLayer, wireLayer, moduleElements, statusEl } from './state.js';
-import { MODULE_LIBRARY } from './constants.js';
-import { getCanvasPoint, getModuleById, applyCanvasBackground, clamp, isTypingTarget, uid } from './utils.js';
-import { createModule, renderModules } from './module.js';
+import { MODULE_LIBRARY, DEFAULT_MODULE, MUX_DEFAULT } from './constants.js';
+import { getCanvasPoint, getModuleById, applyCanvasBackground, clamp, isTypingTarget, uid, ensureMuxGeometry } from './utils.js';
+import { createModule, renderModules, ensureMuxPorts } from './module.js';
 import { createWire, updateWires, syncSvgSize } from './wire.js';
 import { renderProperties } from './properties.js';
 import { describePortRef } from './port.js';
-import { serializeState, loadState, exportPng, exportSvg } from './export.js';
+import { serializeState, loadState, exportPng, exportSvg, refreshIdCounter } from './export.js';
 
 // 事件处理器引用
 let onModuleDragHandler = null;
@@ -177,6 +177,115 @@ function pasteClipboardModule() {
   };
   state.modules.push(moduleItem);
   select({ type: "module", id: moduleItem.id });
+}
+
+function buildModuleFromJson(data, usedModuleIds) {
+  if (!data || typeof data !== "object") {
+    return null;
+  }
+  const rawType = typeof data.type === "string" ? data.type : "logic";
+  const type = MODULE_LIBRARY[rawType] ? rawType : "logic";
+  const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.logic;
+  let moduleId = typeof data.id === "string" ? data.id.trim() : "";
+  if (!moduleId || usedModuleIds.has(moduleId)) {
+    moduleId = uid("mod");
+  }
+  usedModuleIds.add(moduleId);
+
+  const moduleItem = {
+    id: moduleId,
+    type,
+    name: typeof data.name === "string" && data.name.trim() ? data.name : library.label,
+    x: Number.isFinite(data.x) ? Math.round(data.x) : 0,
+    y: Number.isFinite(data.y) ? Math.round(data.y) : 0,
+    width: Number.isFinite(data.width) ? Math.round(data.width) : library.width,
+    height: Number.isFinite(data.height) ? Math.round(data.height) : library.height,
+    nameSize: Number.isFinite(data.nameSize) ? data.nameSize : DEFAULT_MODULE.nameSize,
+    showType: data.showType === undefined ? DEFAULT_MODULE.showType : Boolean(data.showType),
+    fill: typeof data.fill === "string" ? data.fill : DEFAULT_MODULE.fill,
+    strokeColor: typeof data.strokeColor === "string" ? data.strokeColor : DEFAULT_MODULE.strokeColor,
+    strokeWidth: Number.isFinite(data.strokeWidth) ? data.strokeWidth : DEFAULT_MODULE.strokeWidth,
+    ports: [],
+  };
+
+  if (type === "mux") {
+    moduleItem.muxInputs = Number.isFinite(data.muxInputs) ? clamp(Math.round(data.muxInputs), 2, 8) : MUX_DEFAULT.inputs;
+    moduleItem.muxControlSide = data.muxControlSide === "bottom" ? "bottom" : MUX_DEFAULT.controlSide;
+  }
+
+  const portsSource = Array.isArray(data.ports) && data.ports.length > 0
+    ? data.ports
+    : (Array.isArray(library.ports) ? library.ports : []);
+  const usedPortIds = new Set();
+  moduleItem.ports = portsSource.map((port, index) => {
+    const name = typeof port.name === "string" && port.name ? port.name : `P${index + 1}`;
+    const side = typeof port.side === "string" && port.side ? port.side : "left";
+    const offset = Number.isFinite(port.offset) ? clamp(port.offset, 0, 1) : 0.5;
+    let portId = typeof port.id === "string" ? port.id.trim() : "";
+    if (!portId || usedPortIds.has(portId)) {
+      portId = uid("port");
+    }
+    usedPortIds.add(portId);
+    return {
+      id: portId,
+      name,
+      side,
+      offset,
+      clock: port.clock === true,
+    };
+  });
+
+  if (type === "mux") {
+    ensureMuxPorts(moduleItem);
+    ensureMuxGeometry(moduleItem);
+  }
+
+  return moduleItem;
+}
+
+function addModulesFromJson(rawText) {
+  let data;
+  try {
+    data = JSON.parse(rawText);
+  } catch (err) {
+    alert("Failed to parse JSON.");
+    return false;
+  }
+
+  if (data && Array.isArray(data.modules) && Array.isArray(data.wires)) {
+    alert("This looks like full diagram JSON. Use Import JSON instead.");
+    return false;
+  }
+
+  const moduleList = Array.isArray(data)
+    ? data
+    : Array.isArray(data.modules)
+      ? data.modules
+      : [data];
+
+  const usedModuleIds = new Set(state.modules.map((mod) => mod.id));
+  const newModules = [];
+  moduleList.forEach((item) => {
+    const moduleItem = buildModuleFromJson(item, usedModuleIds);
+    if (moduleItem) {
+      newModules.push(moduleItem);
+    }
+  });
+
+  if (newModules.length === 0) {
+    alert("No valid module data found.");
+    return false;
+  }
+
+  state.modules.push(...newModules);
+  refreshIdCounter();
+  state.selection = { type: "module", id: newModules[newModules.length - 1].id };
+  state.connecting = null;
+  doRenderModules();
+  doUpdateWires();
+  doRenderProperties();
+  updateStatus();
+  return true;
 }
 
 /**
@@ -491,6 +600,7 @@ export function initButtons() {
   const modalText = document.getElementById("modal-text");
   const modalClose = document.getElementById("modal-close");
   const modalApply = document.getElementById("modal-apply");
+  const importModuleButton = document.getElementById("btn-import-module");
   const exportPngButton = document.getElementById("btn-export-png");
   const exportSvgButton = document.getElementById("btn-export-svg");
   const bgToggleButton = document.getElementById("btn-bg-toggle");
@@ -498,15 +608,23 @@ export function initButtons() {
 
   const openModal = (mode) => {
     modalMode = mode;
+    modalText.placeholder = "";
     if (mode === "export") {
       modalTitle.textContent = "Export JSON";
       modalText.value = JSON.stringify(serializeState(), null, 2);
       modalText.readOnly = true;
       modalApply.style.display = "none";
+    } else if (mode === "import-module") {
+      modalTitle.textContent = "Import Module JSON";
+      modalText.value = "";
+      modalText.readOnly = false;
+      modalText.placeholder = "Paste a module JSON object here";
+      modalApply.style.display = "inline-flex";
     } else {
       modalTitle.textContent = "Import JSON";
       modalText.value = "";
       modalText.readOnly = false;
+      modalText.placeholder = "Paste diagram JSON here";
       modalApply.style.display = "inline-flex";
     }
     modal.classList.remove("hidden");
@@ -518,6 +636,9 @@ export function initButtons() {
 
   document.getElementById("btn-export").addEventListener("click", () => openModal("export"));
   document.getElementById("btn-import").addEventListener("click", () => openModal("import"));
+  if (importModuleButton) {
+    importModuleButton.addEventListener("click", () => openModal("import-module"));
+  }
 
   modalClose.addEventListener("click", closeModal);
   modal.addEventListener("click", (event) => {
@@ -527,20 +648,25 @@ export function initButtons() {
   });
 
   modalApply.addEventListener("click", () => {
-    if (modalMode !== "import") {
+    if (modalMode === "import") {
+      try {
+        const data = JSON.parse(modalText.value);
+        loadState(data, {
+          renderModules: doRenderModules,
+          updateWires: doUpdateWires,
+          renderProperties: doRenderProperties,
+          updateStatus: updateStatus,
+        });
+        closeModal();
+      } catch (err) {
+        alert("Failed to parse JSON.");
+      }
       return;
     }
-    try {
-      const data = JSON.parse(modalText.value);
-      loadState(data, {
-        renderModules: doRenderModules,
-        updateWires: doUpdateWires,
-        renderProperties: doRenderProperties,
-        updateStatus: updateStatus,
-      });
-      closeModal();
-    } catch (err) {
-      alert("Failed to parse JSON.");
+    if (modalMode === "import-module") {
+      if (addModulesFromJson(modalText.value)) {
+        closeModal();
+      }
     }
   });
 
@@ -577,7 +703,7 @@ export function initButtons() {
   });
 
   const updateBgButton = () => {
-    bgToggleButton.textContent = state.export.transparent ? "BG: Transparent" : "BG: Solid";
+    bgToggleButton.textContent = state.export.transparent ? "BG: Trans" : "BG: Solid";
   };
 
   exportPngButton.addEventListener("click", exportPng);
