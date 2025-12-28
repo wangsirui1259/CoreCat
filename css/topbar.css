@@ -4,6 +4,7 @@
 
 .topbar {
   display: flex;
+  height: 96px;
   align-items: center;
   gap: 16px;
   padding: 16px 24px;
@@ -20,6 +21,18 @@
   background: radial-gradient(circle at 20% 10%, rgba(242, 193, 78, 0.3), transparent 55%);
   opacity: 0.6;
   pointer-events: none;
+}
+
+.logo img {
+  width: 96px;
+  /* 你想显示的大小，比如 32/40/48 */
+  height: 96px;
+  object-fit: cover;
+  /* 裁掉多余部分 */
+  object-position: center;
+  /* 裁剪的中心点，可改 */
+  display: block;
+  margin: 0 -16px 0 -16px;
 }
 
 .brand {
