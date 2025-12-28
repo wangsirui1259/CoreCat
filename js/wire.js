@@ -279,14 +279,16 @@ export function buildWirePath(wire, start, end) {
 
 /**
  * 获取连线手柄位置数组
+ * 对于智能路由（SmartRoute，wire.bends 数组存在时），返回单个中心手柄，可以拖动整条线段
+ * 对于简单路由（wire.bend 单值），返回中间位置的手柄
+ * 注意：wire.bends 仅由 setWireSmartBends() 设置，普通连线不会有此属性
  */
 export function getWireHandlePositions(wire, start, end) {
   if (Array.isArray(wire.bends) && wire.bends.length > 0) {
-    return wire.bends.map((bend, index) => ({
-      x: bend.x,
-      y: bend.y,
-      index,
-    }));
+    // 智能路由：计算所有弯折点的中心位置，返回单个手柄用于整体移动
+    const centerX = wire.bends.reduce((sum, b) => sum + b.x, 0) / wire.bends.length;
+    const centerY = wire.bends.reduce((sum, b) => sum + b.y, 0) / wire.bends.length;
+    return [{ x: centerX, y: centerY, index: -2 }]; // index -2 表示智能路由整体移动
   }
   
   if (wire.route === "V") {

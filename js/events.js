@@ -300,13 +300,21 @@ function endPan() {
  * 开始连线拖拽
  */
 function startWireDrag(event, wire, bendIndex = -1) {
+  let origin;
+  if (bendIndex === -2 && Array.isArray(wire.bends)) {
+    // 智能路由整体移动：保存所有弯折点的原始位置
+    origin = wire.bends.map(b => ({ x: b.x, y: b.y }));
+  } else if (bendIndex >= 0 && Array.isArray(wire.bends)) {
+    origin = { x: wire.bends[bendIndex].x, y: wire.bends[bendIndex].y };
+  } else {
+    origin = wire.bend;
+  }
+  
   state.dragWire = {
     id: wire.id,
     route: wire.route,
     bendIndex: bendIndex,
-    origin: bendIndex >= 0 && Array.isArray(wire.bends) 
-      ? { x: wire.bends[bendIndex].x, y: wire.bends[bendIndex].y }
-      : wire.bend,
+    origin: origin,
     startX: event.clientX,
     startY: event.clientY,
   };
@@ -333,7 +341,16 @@ function onWireDrag(event) {
   const dx = (event.clientX - state.dragWire.startX) / state.view.scale;
   const dy = (event.clientY - state.dragWire.startY) / state.view.scale;
   
-  if (state.dragWire.bendIndex >= 0 && Array.isArray(wire.bends)) {
+  if (state.dragWire.bendIndex === -2 && Array.isArray(wire.bends)) {
+    // 智能路由整体移动：移动所有弯折点
+    const origins = state.dragWire.origin;
+    for (let i = 0; i < wire.bends.length; i++) {
+      wire.bends[i] = {
+        x: Math.round(origins[i].x + dx),
+        y: Math.round(origins[i].y + dy),
+      };
+    }
+  } else if (state.dragWire.bendIndex >= 0 && Array.isArray(wire.bends)) {
     const origin = state.dragWire.origin;
     wire.bends[state.dragWire.bendIndex] = {
       x: Math.round(origin.x + dx),
