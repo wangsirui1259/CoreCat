@@ -5,10 +5,32 @@
 
 import { state, canvas } from './state.js';
 import { MODULE_LIBRARY, DEFAULT_MODULE, DEFAULT_WIRE, WIRE_STYLES, DEFAULT_CANVAS_BG, MUX_DEFAULT } from './constants.js';
-import { escapeXml, getMuxCut, getExtenderOffset, getCanvasBackgroundColor, applyCanvasBackground, ensureMuxGeometry } from './utils.js';
+import { escapeXml, getMuxCut, getExtenderOffset, getCanvasBackgroundColor, applyCanvasBackground, ensureMuxGeometry, getModuleGradientFill } from './utils.js';
 import { getPortLocalPosition, getPortPositionByRef } from './port.js';
 import { buildWirePath, wireLabelPosition } from './wire.js';
 import { ensureMuxPorts } from './module.js';
+
+const MODULE_STROKE_COLORS = {
+  alu: "rgba(242, 193, 78, 0.8)",
+  reg: "rgba(59, 125, 115, 0.8)",
+  logic: "rgba(224, 122, 95, 0.8)",
+  combo: "rgba(58, 114, 176, 0.8)",
+  extender: "rgba(200, 110, 140, 0.8)",
+  mux: "rgba(150, 108, 203, 0.6)",
+};
+const DEFAULT_STROKE_COLOR = "rgba(31, 38, 43, 0.18)";
+
+function resolveModuleStrokeColor(mod) {
+  if (typeof mod.strokeColor === "string" && mod.strokeColor.trim() !== "") {
+    return mod.strokeColor;
+  }
+  return MODULE_STROKE_COLORS[mod.type] || DEFAULT_STROKE_COLOR;
+}
+
+function makeGradientId(mod, index) {
+  const raw = typeof mod.id === "string" && mod.id ? mod.id : `module-${index}`;
+  return `moduleGradient-${raw.replace(/[^a-zA-Z0-9_-]/g, "")}`;
+}
 
 /**
  * 计算图表边界
@@ -119,27 +141,30 @@ export function buildExportSvg(options) {
     }
   });
 
-  state.modules.forEach((mod) => {
-    const fill = mod.fill || "#fffdf9";
-    const stroke = mod.strokeColor || "#1d262b";
-    const strokeOpacity = mod.strokeColor ? 1 : 0.35;
-    const strokeWidth = Number.isFinite(mod.strokeWidth) ? mod.strokeWidth : 1.2;
+  state.modules.forEach((mod, index) => {
+    const stroke = resolveModuleStrokeColor(mod);
+    const strokeWidth = Number.isFinite(mod.strokeWidth) ? mod.strokeWidth : DEFAULT_MODULE.strokeWidth;
+    const gradientId = makeGradientId(mod, index);
+    const { fillAttr, gradientDef } = getModuleGradientFill(mod, stroke, gradientId);
     parts.push(`<g transform="translate(${mod.x} ${mod.y})">`);
+    if (gradientDef) {
+      parts.push(gradientDef);
+    }
     if (mod.type === "mux") {
       const cut = getMuxCut(mod);
       const points = `0 0 ${mod.width} ${cut} ${mod.width} ${mod.height - cut} 0 ${mod.height}`;
       parts.push(
-        `<polygon points="${points}" fill="${fill}" stroke="${stroke}" stroke-opacity="${strokeOpacity}" stroke-width="${strokeWidth}"></polygon>`
+        `<polygon points="${points}" fill="${fillAttr}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"></polygon>`
       );
     } else if (mod.type === "extender") {
       const offset = getExtenderOffset(mod);
       const points = `0 ${offset} ${mod.width} 0 ${mod.width} ${mod.height} 0 ${mod.height}`;
       parts.push(
-        `<polygon points="${points}" fill="${fill}" stroke="${stroke}" stroke-opacity="${strokeOpacity}" stroke-width="${strokeWidth}"></polygon>`
+        `<polygon points="${points}" fill="${fillAttr}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"></polygon>`
       );
     } else {
       parts.push(
-        `<rect x="0" y="0" width="${mod.width}" height="${mod.height}" rx="12" ry="12" fill="${fill}" stroke="${stroke}" stroke-opacity="${strokeOpacity}" stroke-width="${strokeWidth}"></rect>`
+        `<rect x="0" y="0" width="${mod.width}" height="${mod.height}" rx="12" ry="12" fill="${fillAttr}" stroke="${stroke}" stroke-width="${strokeWidth}"></rect>`
       );
     }
 

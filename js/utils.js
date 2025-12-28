@@ -168,36 +168,62 @@ export function ensureMuxGeometry(mod, mode) {
  * 获取模块渐变填充的SVG定义和填充属性
  * 与CSS中 color-mix 渐变一致，根据模块类型的 stroke 颜色生成渐变
  */
-function getModuleGradientFill(mod, strokeColor) {
-  const useGradient = !mod.fill;
-  const gradientId = 'moduleGradient';
-  const fillAttr = useGradient ? `url(#${gradientId})` : (mod.fill || 'rgba(255, 253, 249, 0.95)');
+export function getModuleGradientFill(mod, strokeColor, gradientId = "moduleGradient") {
+  const hasFill = typeof mod.fill === "string" && mod.fill !== "";
+  const useGradient = !hasFill;
+  const fillAttr = useGradient ? `url(#${gradientId})` : mod.fill;
+
+  const parseRgb = (color) => {
+    if (typeof color !== "string") {
+      return null;
+    }
+    const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (rgbaMatch) {
+      const r = Number.parseInt(rgbaMatch[1], 10);
+      const g = Number.parseInt(rgbaMatch[2], 10);
+      const b = Number.parseInt(rgbaMatch[3], 10);
+      if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+        return null;
+      }
+      return { r, g, b };
+    }
+    if (color.startsWith("#")) {
+      let hex = color.slice(1).trim();
+      if (hex.length === 3) {
+        hex = hex.split("").map((ch) => ch + ch).join("");
+      }
+      if (hex.length === 6 || hex.length === 8) {
+        const r = Number.parseInt(hex.slice(0, 2), 16);
+        const g = Number.parseInt(hex.slice(2, 4), 16);
+        const b = Number.parseInt(hex.slice(4, 6), 16);
+        if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+          return null;
+        }
+        return { r, g, b };
+      }
+    }
+    return null;
+  };
 
   // 根据 stroke 颜色生成渐变，模拟 CSS color-mix(in srgb, strokeColor 16%, white) 和 color-mix(in srgb, strokeColor 8%, white)
   // 使用 stroke 颜色的淡色版本作为渐变
-  let gradientDef = '';
-  if (useGradient && strokeColor) {
-    // 解析 rgba 颜色
-    const rgbaMatch = strokeColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-    if (rgbaMatch) {
-      const r = parseInt(rgbaMatch[1]);
-      const g = parseInt(rgbaMatch[2]);
-      const b = parseInt(rgbaMatch[3]);
+  let gradientDef = "";
+  if (useGradient) {
+    const rgb = parseRgb(strokeColor);
+    if (rgb) {
       // 16% stroke color mixed with white
-      const r1 = Math.round(r * 0.16 + 255 * 0.84);
-      const g1 = Math.round(g * 0.16 + 255 * 0.84);
-      const b1 = Math.round(b * 0.16 + 255 * 0.84);
+      const r1 = Math.round(rgb.r * 0.16 + 255 * 0.84);
+      const g1 = Math.round(rgb.g * 0.16 + 255 * 0.84);
+      const b1 = Math.round(rgb.b * 0.16 + 255 * 0.84);
       // 8% stroke color mixed with white
-      const r2 = Math.round(r * 0.08 + 255 * 0.92);
-      const g2 = Math.round(g * 0.08 + 255 * 0.92);
-      const b2 = Math.round(b * 0.08 + 255 * 0.92);
+      const r2 = Math.round(rgb.r * 0.08 + 255 * 0.92);
+      const g2 = Math.round(rgb.g * 0.08 + 255 * 0.92);
+      const b2 = Math.round(rgb.b * 0.08 + 255 * 0.92);
       gradientDef = `<defs><linearGradient id="${gradientId}" x1="0%" y1="0%" x2="70%" y2="100%"><stop offset="0%" stop-color="rgba(${r1}, ${g1}, ${b1}, 0.95)"/><stop offset="100%" stop-color="rgba(${r2}, ${g2}, ${b2}, 0.92)"/></linearGradient></defs>`;
     } else {
       // 如果无法解析颜色，使用默认渐变
       gradientDef = `<defs><linearGradient id="${gradientId}" x1="0%" y1="0%" x2="70%" y2="100%"><stop offset="0%" stop-color="rgba(255, 255, 255, 0.95)"/><stop offset="100%" stop-color="rgba(245, 239, 229, 0.92)"/></linearGradient></defs>`;
     }
-  } else if (useGradient) {
-    gradientDef = `<defs><linearGradient id="${gradientId}" x1="0%" y1="0%" x2="70%" y2="100%"><stop offset="0%" stop-color="rgba(255, 255, 255, 0.95)"/><stop offset="100%" stop-color="rgba(245, 239, 229, 0.92)"/></linearGradient></defs>`;
   }
   return { fillAttr, gradientDef };
 }
