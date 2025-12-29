@@ -11,6 +11,7 @@ import { createWire, updateWires, syncSvgSize } from './wire.js';
 import { renderProperties } from './properties.js';
 import { describePortRef } from './port.js';
 import { serializeState, loadState, exportPng, exportSvg, refreshIdCounter, saveDiagramToStorage, scheduleAutoSave, loadDiagramFromStorage, clearDiagramStorage } from './export.js';
+import { initHistory, recordHistory, undoHistory, redoHistory } from './history.js';
 
 // 事件处理器引用
 let onModuleDragHandler = null;
@@ -88,6 +89,7 @@ export function deleteSelected() {
   doUpdateWires();
   doRenderProperties();
   updateStatus();
+  recordHistory();
   scheduleAutoSave();
 }
 
@@ -179,6 +181,7 @@ function pasteClipboardModule() {
   };
   state.modules.push(moduleItem);
   select({ type: "module", id: moduleItem.id });
+  recordHistory();
   scheduleAutoSave();
 }
 
@@ -290,6 +293,7 @@ function addModulesFromJson(rawText) {
   doUpdateWires();
   doRenderProperties();
   updateStatus();
+  recordHistory();
   scheduleAutoSave();
   return true;
 }
@@ -309,6 +313,7 @@ function handlePortClick(event, mod, port) {
     state.connecting = null;
     doUpdateWires();
     updateStatus();
+    recordHistory();
     scheduleAutoSave();
     return;
   }
@@ -397,6 +402,7 @@ function endModuleDrag() {
   state.drag = null;
   window.removeEventListener("pointermove", onModuleDragHandler);
   window.removeEventListener("pointerup", endModuleDragHandler);
+  recordHistory();
   scheduleAutoSave();
 }
 
@@ -589,6 +595,7 @@ function endWireDrag() {
   window.removeEventListener("pointermove", onWireDragHandler);
   window.removeEventListener("pointerup", endWireDragHandler);
   doRenderProperties();
+  recordHistory();
   scheduleAutoSave();
 }
 
@@ -609,6 +616,7 @@ export function initPalette() {
     const x = rect.width / 2 - library.width / 2;
     const y = rect.height / 2 - library.height / 2;
     createModule(type, x, y, select);
+    recordHistory();
     scheduleAutoSave();
   });
   });
@@ -635,6 +643,7 @@ export function initPalette() {
     const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.seq;
     const point = getCanvasPoint(event);
     createModule(type, point.x - library.width / 2, point.y - library.height / 2, select);
+    recordHistory();
     scheduleAutoSave();
   });
 }
@@ -705,6 +714,7 @@ export function initButtons() {
           renderProperties: doRenderProperties,
           updateStatus: updateStatus,
         });
+        recordHistory();
         scheduleAutoSave();
         closeModal();
       } catch (err) {
@@ -748,6 +758,7 @@ export function initButtons() {
     doUpdateWires();
     doRenderProperties();
     updateStatus();
+    recordHistory();
     clearDiagramStorage();
   });
 
@@ -826,8 +837,23 @@ export function initCanvasEvents() {
  * 初始化键盘事件
  */
 export function initKeyboardEvents() {
+  const historyCallbacks = {
+    renderModules: doRenderModules,
+    updateWires: doUpdateWires,
+    renderProperties: doRenderProperties,
+    updateStatus: updateStatus,
+  };
+
   document.addEventListener("keydown", (event) => {
     if (isTypingTarget(document.activeElement)) {
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+      const handled = event.shiftKey ? redoHistory(historyCallbacks) : undoHistory(historyCallbacks);
+      if (handled) {
+        scheduleAutoSave();
+      }
+      event.preventDefault();
       return;
     }
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "c") {
@@ -901,4 +927,5 @@ export function initApp() {
     doRenderProperties();
     updateStatus();
   }
+  initHistory();
 }

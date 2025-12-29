@@ -99,6 +99,8 @@ export const WIRE_MARGIN = 20;
 
 export const DEFAULT_CANVAS_BG = "#f6f1e8";
 
+export const HISTORY_MAX_STEPS = 5;
+
 export const WIRE_STYLES = {
   solid: "",
   dashed: "8 6",

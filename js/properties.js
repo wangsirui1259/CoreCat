@@ -10,6 +10,7 @@ import { scheduleAutoSave } from './export.js';
 import { setWireDefaultBend, setWireSmartBends } from './wire.js';
 import { ensureMuxPorts } from './module.js';
 import { describePortRef } from './port.js';
+import { recordHistory } from './history.js';
 
 /**
  * 创建表单字段
@@ -120,6 +121,7 @@ function renderCanvasProperties(renderPropertiesCallback) {
       makeColorInput(state.canvasBackground || DEFAULT_CANVAS_BG, (value) => {
         state.canvasBackground = value;
         applyCanvasBackground();
+        recordHistory();
         scheduleAutoSave();
       })
     )
@@ -131,6 +133,7 @@ function renderCanvasProperties(renderPropertiesCallback) {
     makeButton("Reset Background", "btn-accent", () => {
       state.canvasBackground = "";
       applyCanvasBackground();
+      recordHistory();
       scheduleAutoSave();
       if (renderPropertiesCallback) {
         renderPropertiesCallback();
@@ -612,10 +615,12 @@ function renderWireProperties(wire, updateWiresCallback, renderPropertiesCallbac
 export function renderProperties(renderModulesCallback, updateWiresCallback, updateStatusCallback) {
   const renderModules = () => {
     renderModulesCallback();
+    recordHistory();
     scheduleAutoSave();
   };
   const updateWires = () => {
     updateWiresCallback();
+    recordHistory();
     scheduleAutoSave();
   };
   const renderPropertiesCallback = () => renderProperties(renderModulesCallback, updateWiresCallback, updateStatusCallback);
