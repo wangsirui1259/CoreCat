@@ -22,6 +22,9 @@ const DEFAULT_STROKE_COLOR = "rgba(31, 38, 43, 0.18)";
 const STORAGE_KEY = "corecat-diagram";
 const AUTO_SAVE_DELAY = 250;
 let autoSaveTimer = null;
+const PORT_LABEL_FONT_SIZE = 14;
+const PORT_LABEL_HALF_HEIGHT = PORT_LABEL_FONT_SIZE / 2;
+const PORT_COLOR_MIX_RATIO = 0.5;
 
 /**
  * 保存至本地存储
@@ -98,6 +101,94 @@ function resolveModuleStrokeColor(mod) {
 function makeGradientId(mod, index) {
   const raw = typeof mod.id === "string" && mod.id ? mod.id : `module-${index}`;
   return `moduleGradient-${raw.replace(/[^a-zA-Z0-9_-]/g, "")}`;
+}
+
+function parseRgb(color) {
+  if (typeof color !== "string") {
+    return null;
+  }
+  const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+  if (rgbaMatch) {
+    const r = Number.parseInt(rgbaMatch[1], 10);
+    const g = Number.parseInt(rgbaMatch[2], 10);
+    const b = Number.parseInt(rgbaMatch[3], 10);
+    const a = rgbaMatch[4] !== undefined ? Number.parseFloat(rgbaMatch[4]) : 1;
+    if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b) || Number.isNaN(a)) {
+      return null;
+    }
+    return { r, g, b, a };
+  }
+  if (color.startsWith("#")) {
+    let hex = color.slice(1).trim();
+    if (hex.length === 3) {
+      hex = hex.split("").map((ch) => ch + ch).join("");
+    }
+    if (hex.length === 6 || hex.length === 8) {
+      const r = Number.parseInt(hex.slice(0, 2), 16);
+      const g = Number.parseInt(hex.slice(2, 4), 16);
+      const b = Number.parseInt(hex.slice(4, 6), 16);
+      const a = hex.length === 8 ? Number.parseInt(hex.slice(6, 8), 16) / 255 : 1;
+      if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b) || Number.isNaN(a)) {
+        return null;
+      }
+      return { r, g, b, a };
+    }
+  }
+  return null;
+}
+
+function mixWithBlack(color, ratio = PORT_COLOR_MIX_RATIO) {
+  const rgb = parseRgb(color);
+  if (!rgb) {
+    return "";
+  }
+  const r = Math.round(rgb.r * ratio);
+  const g = Math.round(rgb.g * ratio);
+  const b = Math.round(rgb.b * ratio);
+  const a = rgb.a * ratio + (1 - ratio);
+  if (a >= 0.999) {
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+  const alpha = Math.round(a * 1000) / 1000;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function resolvePortFillColor(strokeColor) {
+  const mixed = mixWithBlack(strokeColor);
+  if (mixed) {
+    return mixed;
+  }
+  const fallback = mixWithBlack(DEFAULT_STROKE_COLOR);
+  return fallback || "#1d262b";
+}
+
+function getPortLabelPlacement(mod, portSide) {
+  const isOffsetPort = mod.type === "extender" || mod.type === "mux";
+  const leftOffset = isOffsetPort ? 7 : 6;
+  const rightOffset = isOffsetPort ? -8 : -10;
+  switch (portSide) {
+    case "left":
+      return { dx: leftOffset, dy: -2, anchor: "start" };
+    case "right":
+      return { dx: rightOffset, dy: -2, anchor: "end" };
+    case "top":
+      return { dx: -2, dy: 3 + PORT_LABEL_HALF_HEIGHT, anchor: "middle" };
+    case "bottom":
+      return { dx: -2, dy: -(10 + PORT_LABEL_HALF_HEIGHT), anchor: "middle" };
+    case "slopeTop":
+      return { dx: -1, dy: 6 + PORT_LABEL_HALF_HEIGHT, anchor: "middle" };
+    case "slopeBottom":
+      return { dx: 1, dy: -(6 + PORT_LABEL_HALF_HEIGHT), anchor: "middle" };
+    default:
+      return { dx: 0, dy: 0, anchor: "middle" };
+  }
+}
+
+function buildClockMarkerPath(x, y, width, height, pointDown) {
+  if (pointDown) {
+    return `M ${x + 1} ${y + 1} L ${x + width - 1} ${y + 1} L ${x + width / 2} ${y + height - 1} Z`;
+  }
+  return `M ${x + width / 2} ${y + 1} L ${x + width - 1} ${y + height - 1} L ${x + 1} ${y + height - 1} Z`;
 }
 
 /**
@@ -177,10 +268,10 @@ export function buildExportSvg(options) {
   parts.push(
     "<style>",
     ".wire{fill:none;stroke-linecap:round;stroke-linejoin:round;}",
-    ".module-name{font-family:MiSans VF,Noto Sans,Trebuchet MS,Lucida Sans Unicode,Lucida Grande,sans-serif;font-size:16px;font-weight:700;fill:#1d262b;}",
-    ".module-type{font-family:MiSans VF,Noto Sans,Trebuchet MS,Lucida Sans Unicode,Lucida Grande,sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;fill:#6b6f6f;}",
+    ".module-name{font-family:MiSans VF,Noto Sans SC,Trebuchet MS,Lucida Sans Unicode,Lucida Grande,sans-serif;font-size:16px;font-weight:700;fill:#1d262b;}",
+    ".module-type{font-family:MiSans VF,Noto Sans SC,Trebuchet MS,Lucida Sans Unicode,Lucida Grande,sans-serif;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;fill:#6b6f6f;}",
     ".port-label{font-family:Maple Mono Normal NF CN,Maple Mono NF CN,Consolas,Courier New,monospace;font-size:14px;fill:#1d262b;}",
-    ".wire-label{font-family:Maple Mono Normal NF CN,Maple Mono NF CN,Consolas,Courier New,monospace;font-size:12px;fill:#1d262b;}",
+    ".wire-label{font-family:Maple Mono Normal NF CN,Maple Mono NF CN,Consolas,Courier New,monospace;font-size:11px;}",
     "</style>"
   );
   if (background) {
@@ -199,14 +290,14 @@ export function buildExportSvg(options) {
     const dash = WIRE_STYLES[wire.style] || "";
     const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
     parts.push(`<path class="wire" d="${buildWirePath(wire, start, end)}" stroke="${color}" stroke-width="${widthValue}"${dashAttr}></path>`);
-    if (wire.label) {
-      const labelPos = wireLabelPosition(wire, start, end);
-      parts.push(
-        `<text class="wire-label" x="${labelPos.x}" y="${labelPos.y - 10}" text-anchor="middle" dominant-baseline="central">${escapeXml(
+      if (wire.label) {
+        const labelPos = wireLabelPosition(wire, start, end);
+        parts.push(
+          `<text class="wire-label" x="${labelPos.x}" y="${labelPos.y - 10}" text-anchor="middle" dominant-baseline="central" fill="${color}">${escapeXml(
           wire.label
         )}</text>`
-      );
-    }
+        );
+      }
   });
 
   state.modules.forEach((mod, index) => {
@@ -214,25 +305,26 @@ export function buildExportSvg(options) {
     const strokeWidth = Number.isFinite(mod.strokeWidth) ? mod.strokeWidth : DEFAULT_MODULE.strokeWidth;
     const gradientId = makeGradientId(mod, index);
     const { fillAttr, gradientDef } = getModuleGradientFill(mod, stroke, gradientId);
+    const sw2 = strokeWidth / 2;
     parts.push(`<g transform="translate(${mod.x} ${mod.y})">`);
     if (gradientDef) {
       parts.push(gradientDef);
     }
     if (mod.type === "mux") {
       const cut = getMuxCut(mod);
-      const points = `0 0 ${mod.width} ${cut} ${mod.width} ${mod.height - cut} 0 ${mod.height}`;
-      parts.push(
-        `<polygon points="${points}" fill="${fillAttr}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"></polygon>`
-      );
+      const path = `M ${sw2} ${sw2} L ${mod.width - sw2} ${cut} L ${mod.width - sw2} ${mod.height - cut} L ${sw2} ${mod.height - sw2} Z`;
+      parts.push(`<path d="${path}" fill="${fillAttr}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"></path>`);
     } else if (mod.type === "extender") {
       const offset = getExtenderOffset(mod);
-      const points = `0 ${offset} ${mod.width} 0 ${mod.width} ${mod.height} 0 ${mod.height}`;
-      parts.push(
-        `<polygon points="${points}" fill="${fillAttr}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"></polygon>`
-      );
+      const topLeftY = Math.max(sw2, offset);
+      const path = `M ${sw2} ${topLeftY} L ${mod.width - sw2} ${sw2} L ${mod.width - sw2} ${mod.height - sw2} L ${sw2} ${mod.height - sw2} Z`;
+      parts.push(`<path d="${path}" fill="${fillAttr}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"></path>`);
     } else {
+      const rectWidth = Math.max(0, mod.width - strokeWidth);
+      const rectHeight = Math.max(0, mod.height - strokeWidth);
+      const radius = Math.max(0, 14 - sw2);
       parts.push(
-        `<rect x="0" y="0" width="${mod.width}" height="${mod.height}" rx="12" ry="12" fill="${fillAttr}" stroke="${stroke}" stroke-width="${strokeWidth}"></rect>`
+        `<rect x="${sw2}" y="${sw2}" width="${rectWidth}" height="${rectHeight}" rx="${radius}" ry="${radius}" fill="${fillAttr}" stroke="${stroke}" stroke-width="${strokeWidth}"></rect>`
       );
     }
 
@@ -240,15 +332,23 @@ export function buildExportSvg(options) {
     const centerX = mod.width / 2;
     const centerY = mod.height / 2;
     if (mod.showType) {
-      const nameY = centerY - Math.max(6, nameSize * 0.3);
-      const typeY = centerY + Math.max(10, nameSize * 0.7);
+      const typeSize = 11;
+      const gap = 2;
+      const totalHeight = nameSize + typeSize + gap;
+      const top = centerY - totalHeight / 2;
+      const nameY = top + nameSize / 2;
+      const typeY = top + nameSize + gap + typeSize / 2;
       parts.push(
         `<text class="module-name" x="${centerX}" y="${nameY}" text-anchor="middle" dominant-baseline="middle" font-size="${nameSize}">${escapeXml(
           mod.name
         )}</text>`
       );
       const typeLabel = MODULE_LIBRARY[mod.type] ? MODULE_LIBRARY[mod.type].label : mod.type;
-      parts.push(`<text class="module-type" x="${centerX}" y="${typeY}" text-anchor="middle" dominant-baseline="middle">${escapeXml(typeLabel)}</text>`);
+      parts.push(
+        `<text class="module-type" x="${centerX}" y="${typeY}" text-anchor="middle" dominant-baseline="middle" font-size="${typeSize}">${escapeXml(
+          typeLabel
+        )}</text>`
+      );
     } else {
       parts.push(
         `<text class="module-name" x="${centerX}" y="${centerY}" text-anchor="middle" dominant-baseline="middle" font-size="${nameSize}">${escapeXml(
@@ -263,39 +363,27 @@ export function buildExportSvg(options) {
       // (port.clock === true || port.name === "CLK");
       (port.clock === true || String(port.name).toUpperCase() === "CLK");
 
+    const portFill = resolvePortFillColor(stroke);
+    const portOffset = mod.type === "extender" || mod.type === "mux" ? 0 : 0;
+
     mod.ports.forEach((port) => {
       const local = getPortLocalPosition(mod, port);
       if (isClockPort(port)) {
-        const size = 12;
-        if (port.side === "bottom") {
-          const points = `${local.x - size / 2} ${local.y} ${local.x + size / 2} ${local.y} ${local.x} ${local.y - size}`;
-          parts.push(
-            `<polygon points="${points}" fill="none" stroke="${stroke}" stroke-width="${Math.max(1, strokeWidth)}"></polygon>`
-          );
-        } else {
-          const points = `${local.x - size / 2} ${local.y} ${local.x + size / 2} ${local.y} ${local.x} ${local.y + size}`;
-          parts.push(
-            `<polygon points="${points}" fill="none" stroke="${stroke}" stroke-width="${Math.max(1, strokeWidth)}"></polygon>`
-          );
-        }
+        const markerWidth = 24;
+        const markerHeight = 12;
+        const markerX = local.x - markerWidth / 2 + 1;
+        const markerY = port.side === "bottom" ? local.y - markerHeight + 1 : local.y - 1;
+        const markerPath = buildClockMarkerPath(markerX, markerY, markerWidth, markerHeight, port.side !== "bottom");
+        parts.push(
+          `<path d="${markerPath}" fill="none" stroke="${portFill}" stroke-width="3" stroke-linejoin="round"></path>`
+        );
         return;
       }
-      parts.push(`<circle cx="${local.x}" cy="${local.y}" r="5" fill="#1d262b" stroke="#f2c14e" stroke-width="3"></circle>`);
-      const offset = 8;
-      let labelX = local.x;
-      let labelY = local.y;
-      let anchor = "middle";
-      if (port.side === "left") {
-        labelX = local.x + offset;
-        anchor = "start";
-      } else if (port.side === "right") {
-        labelX = local.x - offset;
-        anchor = "end";
-      } else if (port.side === "top" || port.side === "slopeTop") {
-        labelY = local.y + offset;
-      } else if (port.side === "bottom" || port.side === "slopeBottom") {
-        labelY = local.y - offset;
-      }
+      parts.push(`<circle cx="${local.x + portOffset}" cy="${local.y + portOffset}" r="6" fill="${portFill}"></circle>`);
+      const placement = getPortLabelPlacement(mod, port.side);
+      const labelX = local.x + placement.dx + 2.5;
+      const labelY = local.y + placement.dy + 2.5;
+      const anchor = placement.anchor;
       parts.push(
         `<text class="port-label" x="${labelX}" y="${labelY}" text-anchor="${anchor}" dominant-baseline="middle">${escapeXml(port.name)}</text>`
       );

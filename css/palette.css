@@ -132,4 +132,5 @@
   padding: 12px;
   background: var(--bg-strong);
   border-radius: 10px;
+  user-select: none;
 }

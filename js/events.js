@@ -136,11 +136,11 @@ function copySelectedModule(mod) {
       muxControlSide: mod.muxControlSide,
       ports: Array.isArray(mod.ports)
         ? mod.ports.map((port) => ({
-            name: port.name,
-            side: port.side,
-            offset: port.offset,
-            clock: port.clock === true,
-          }))
+          name: port.name,
+          side: port.side,
+          offset: port.offset,
+          clock: port.clock === true,
+        }))
         : [],
     },
     pasteOffset: 0,
@@ -171,12 +171,12 @@ function pasteClipboardModule() {
     muxControlSide: data.muxControlSide,
     ports: Array.isArray(data.ports)
       ? data.ports.map((port) => ({
-          id: uid("port"),
-          name: port.name,
-          side: port.side,
-          offset: port.offset,
-          clock: port.clock === true,
-        }))
+        id: uid("port"),
+        name: port.name,
+        side: port.side,
+        offset: port.offset,
+        clock: port.clock === true,
+      }))
       : [],
   };
   state.modules.push(moduleItem);
@@ -338,10 +338,10 @@ function startModuleDrag(event, mod) {
     originY: mod.y,
     axisLock: null,
   };
-  
+
   onModuleDragHandler = onModuleDrag;
   endModuleDragHandler = endModuleDrag;
-  
+
   window.addEventListener("pointermove", onModuleDragHandler);
   window.addEventListener("pointerup", endModuleDragHandler);
 }
@@ -416,10 +416,10 @@ function startPan(event) {
     originX: state.view.offsetX,
     originY: state.view.offsetY,
   };
-  
+
   onPanHandler = onPan;
   endPanHandler = endPan;
-  
+
   window.addEventListener("pointermove", onPanHandler);
   window.addEventListener("pointerup", endPanHandler);
 }
@@ -456,7 +456,7 @@ function endPan() {
  */
 function startWireDrag(event, wire, bendIndex = -1, segmentIndex = undefined, isHorizontal = undefined) {
   let origin;
-  
+
   if (segmentIndex !== undefined && Array.isArray(wire.bends)) {
     // 智能路由线段拖拽：保存所有弯折点的原始位置
     // 线段结构：start -> bends[0] -> bends[1] -> ... -> bends[n-1] -> end
@@ -469,7 +469,7 @@ function startWireDrag(event, wire, bendIndex = -1, segmentIndex = undefined, is
   } else {
     origin = wire.bend;
   }
-  
+
   state.dragWire = {
     id: wire.id,
     route: wire.route,
@@ -480,10 +480,10 @@ function startWireDrag(event, wire, bendIndex = -1, segmentIndex = undefined, is
     startX: event.clientX,
     startY: event.clientY,
   };
-  
+
   onWireDragHandler = onWireDrag;
   endWireDragHandler = endWireDrag;
-  
+
   window.addEventListener("pointermove", onWireDragHandler);
   window.addEventListener("pointerup", endWireDragHandler);
 }
@@ -499,10 +499,10 @@ function onWireDrag(event) {
   if (!wire) {
     return;
   }
-  
+
   const dx = (event.clientX - state.dragWire.startX) / state.view.scale;
   const dy = (event.clientY - state.dragWire.startY) / state.view.scale;
-  
+
   if (state.dragWire.segmentIndex !== undefined && Array.isArray(wire.bends)) {
     // 智能路由线段拖拽：移动线段保持直角
     // 线段 segmentIndex 连接 points[segmentIndex] 和 points[segmentIndex + 1]
@@ -514,7 +514,7 @@ function onWireDrag(event) {
     const isHorizontal = state.dragWire.isHorizontal;
     const origins = state.dragWire.origin;
     const numBends = wire.bends.length;
-    
+
     // 水平线段只能垂直移动（改变 y 值），垂直线段只能水平移动（改变 x 值）
     if (isHorizontal) {
       // 水平线段：移动时改变相关点的 y 坐标
@@ -613,12 +613,12 @@ export function initPalette() {
       const type = item.dataset.type;
       const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.seq;
       const rect = canvas.getBoundingClientRect();
-    const x = rect.width / 2 - library.width / 2;
-    const y = rect.height / 2 - library.height / 2;
-    createModule(type, x, y, select);
-    recordHistory();
-    scheduleAutoSave();
-  });
+      const x = rect.width / 2 - library.width / 2;
+      const y = rect.height / 2 - library.height / 2;
+      createModule(type, x, y, select);
+      recordHistory();
+      scheduleAutoSave();
+    });
   });
 
   canvas.addEventListener("dragover", (event) => {
