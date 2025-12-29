@@ -11,14 +11,14 @@ export const MODULE_LIBRARY = {
     width: 170,
     height: 110,
     ports: [
-      { name: "A", side: "left", offset: 0.25 },
-      { name: "B", side: "left", offset: 0.7 },
-      { name: "Op", side: "top", offset: 0.5 },
+      { name: "Src1", side: "left", offset: 0.25 },
+      { name: "Src2", side: "left", offset: 0.7 },
+      { name: "ALUOp", side: "top", offset: 0.5 },
       { name: "Out", side: "right", offset: 0.5 },
     ],
   },
   reg: {
-    label: "Clocked Reg",
+    label: "Reg",
     width: 160,
     height: 100,
     ports: [
@@ -27,20 +27,21 @@ export const MODULE_LIBRARY = {
       { name: "CLK", side: "top", offset: 0.5, clock: true },
     ],
   },
-  logic: {
-    label: "Logic",
+  seq: {
+    label: "Seq",
     width: 150,
     height: 90,
     ports: [
-      { name: "In1", side: "left", offset: 0.35 },
-      { name: "In2", side: "left", offset: 0.7 },
+      { name: "InA", side: "left", offset: 0.35 },
+      { name: "InB", side: "left", offset: 0.7 },
       { name: "Out", side: "right", offset: 0.5 },
+      { name: "CLK", side: "top", offset: 0.5, clock: true },
     ],
   },
   combo: {
-    label: "Combinational",
-    width: 180,
-    height: 110,
+    label: "Comb",
+    width: 150,
+    height: 90,
     ports: [
       { name: "InA", side: "left", offset: 0.3 },
       { name: "InB", side: "left", offset: 0.7 },
@@ -57,7 +58,7 @@ export const MODULE_LIBRARY = {
     ],
   },
   mux: {
-    label: "MUX",
+    label: "M",
     width: 60,
     height: 300,
     ports: [],

@@ -185,9 +185,9 @@ function buildModuleFromJson(data, usedModuleIds) {
   if (!data || typeof data !== "object") {
     return null;
   }
-  const rawType = typeof data.type === "string" ? data.type : "logic";
-  const type = MODULE_LIBRARY[rawType] ? rawType : "logic";
-  const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.logic;
+  const rawType = typeof data.type === "string" ? data.type : "seq";
+  const type = MODULE_LIBRARY[rawType] ? rawType : "seq";
+  const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.seq;
   let moduleId = typeof data.id === "string" ? data.id.trim() : "";
   if (!moduleId || usedModuleIds.has(moduleId)) {
     moduleId = uid("mod");
@@ -575,7 +575,7 @@ export function initPalette() {
     });
     item.addEventListener("click", () => {
       const type = item.dataset.type;
-      const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.logic;
+      const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.seq;
       const rect = canvas.getBoundingClientRect();
     const x = rect.width / 2 - library.width / 2;
     const y = rect.height / 2 - library.height / 2;
@@ -594,7 +594,7 @@ export function initPalette() {
     if (!type) {
       return;
     }
-    const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.logic;
+    const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.seq;
     const point = getCanvasPoint(event);
     createModule(type, point.x - library.width / 2, point.y - library.height / 2, select);
     scheduleAutoSave();
@@ -685,18 +685,18 @@ export function initButtons() {
     saveDiagramToStorage();
   });
 
-  document.getElementById("btn-load").addEventListener("click", () => {
-    const loaded = loadDiagramFromStorage({
-      renderModules: doRenderModules,
-      updateWires: doUpdateWires,
-      renderProperties: doRenderProperties,
-      updateStatus: updateStatus,
-    });
-    if (!loaded) {
-      alert("No saved diagram found.");
-      return;
-    }
-  });
+  // document.getElementById("btn-load").addEventListener("click", () => {
+  //   const loaded = loadDiagramFromStorage({
+  //     renderModules: doRenderModules,
+  //     updateWires: doUpdateWires,
+  //     renderProperties: doRenderProperties,
+  //     updateStatus: updateStatus,
+  //   });
+  //   if (!loaded) {
+  //     alert("No saved diagram found.");
+  //     return;
+  //   }
+  // });
 
   document.getElementById("btn-clear").addEventListener("click", () => {
     if (!confirm("Clear the canvas?")) {

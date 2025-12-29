@@ -13,7 +13,7 @@ import { ensureMuxPorts } from './module.js';
 const MODULE_STROKE_COLORS = {
   alu: "rgba(242, 193, 78, 0.8)",
   reg: "rgba(59, 125, 115, 0.8)",
-  logic: "rgba(224, 122, 95, 0.8)",
+  seq: "rgba(224, 122, 95, 0.8)",
   combo: "rgba(58, 114, 176, 0.8)",
   extender: "rgba(200, 110, 140, 0.8)",
   mux: "rgba(150, 108, 203, 0.6)",
@@ -257,7 +257,11 @@ export function buildExportSvg(options) {
       );
     }
 
-    const isClockPort = (port) => mod.type === "reg" && (port.clock === true || port.name === "CLK");
+    const CLOCKED_TYPES = new Set(["reg", "seq"]);
+    const isClockPort = (port) =>
+      CLOCKED_TYPES.has(mod.type) &&
+      // (port.clock === true || port.name === "CLK");
+      (port.clock === true || String(port.name).toUpperCase() === "CLK");
 
     mod.ports.forEach((port) => {
       const local = getPortLocalPosition(mod, port);

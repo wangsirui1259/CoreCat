@@ -28,13 +28,25 @@
       </div>
       <div class="actions">
         <button id="btn-save">Save</button>
-        <button id="btn-load">Load</button>
-        <button id="btn-export">Export JSON</button>
-        <button id="btn-import">Import JSON</button>
-        <button id="btn-import-module">Import Module</button>
-        <button id="btn-export-png">Export PNG</button>
-        <button id="btn-export-svg">Export SVG</button>
-        <button id="btn-bg-toggle">BG: Solid</button>
+        <!-- <button id="btn-load">Load</button> -->
+        <!-- <button id="btn-import">Import JSON</button>
+        <button id="btn-import-module">Import Module</button> -->
+        <div class="dropdown-export">
+          <button id="btn-import-menu">Import</button>
+          <div class="dropdown-menu">
+            <button id="btn-import-module">Import Module</button>
+            <button id="btn-import">Import JSON</button>
+          </div>
+        </div>
+        <div class="dropdown-export">
+          <button id="btn-export-pic">Export</button>
+          <div class="dropdown-menu">
+            <button id="btn-export-png">Export PNG</button>
+            <button id="btn-export-svg">Export SVG</button>
+            <button id="btn-bg-toggle">BG: Solid</button>
+            <button id="btn-export">Export JSON</button>
+          </div>
+        </div>
         <button id="btn-clear" class="danger">Clear</button>
 
       </div>
@@ -50,7 +62,7 @@
         <div class="palette-items">
           <div class="palette-item alu" draggable="true" data-type="alu">ALU</div>
           <div class="palette-item reg" draggable="true" data-type="reg">Clocked Register</div>
-          <div class="palette-item logic" draggable="true" data-type="logic">Logic Block</div>
+          <div class="palette-item seq" draggable="true" data-type="seq">Sequence</div>
           <div class="palette-item combo" draggable="true" data-type="combo">Combinational</div>
           <div class="palette-item extender" draggable="true" data-type="extender">Extender</div>
           <div class="palette-item mux" draggable="true" data-type="mux">MUX</div>

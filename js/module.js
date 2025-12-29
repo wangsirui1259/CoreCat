@@ -82,7 +82,7 @@ export function ensureMuxPorts(mod) {
  * 创建模块
  */
 export function createModule(type, x, y, selectCallback) {
-  const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.logic;
+  const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.seq;
   const count = (state.typeCounts[type] = (state.typeCounts[type] || 0) + 1);
   const moduleItem = {
     id: uid("mod"),
@@ -103,6 +103,7 @@ export function createModule(type, x, y, selectCallback) {
     })),
   };
   if (type === "mux") {
+    moduleItem.name = ``;
     moduleItem.muxInputs = MUX_DEFAULT.inputs;
     moduleItem.muxControlSide = MUX_DEFAULT.controlSide;
     moduleItem.ports = [];

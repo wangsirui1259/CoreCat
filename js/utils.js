@@ -48,14 +48,12 @@ export function getPortById(mod, portId) {
 /**
  * 检查是否为时钟端口
  */
+const CLOCKED_TYPES = new Set(["reg", "seq"]);
 export function isClockPort(mod, port) {
-  if (!mod || !port) {
-    return false;
-  }
-  if (mod.type !== "reg") {
-    return false;
-  }
-  return port.clock === true || port.name === "CLK";
+  if (!mod || !port) return false;
+  if (!CLOCKED_TYPES.has(mod.type)) return false;
+  // return port.clock === true || port.name === "CLK";
+  return port.clock === true || String(port.name).toUpperCase() === "CLK";
 }
 
 /**
