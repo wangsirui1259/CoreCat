@@ -816,7 +816,7 @@ export function initCanvasEvents() {
       const cursorY = event.clientY - rect.top;
       const oldScale = state.view.scale;
       const factor = event.deltaY > 0 ? 0.9 : 1.1;
-      const nextScale = clamp(oldScale * factor, 0.4, 2.5);
+      const nextScale = clamp(oldScale * factor, 0.2, 2);
       if (nextScale === oldScale) {
         return;
       }

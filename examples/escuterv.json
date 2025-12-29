@@ -1,0 +1,3141 @@
+{
+  "canvasBackground": "#ffffff",
+  "modules": [
+    {
+      "id": "pr-if-id",
+      "type": "reg",
+      "name": "PR_IF_ID",
+      "x": -50,
+      "y": 0,
+      "width": 250,
+      "height": 800,
+      "nameSize": 32,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "pr-if-id-clk",
+          "name": "CLK",
+          "side": "top",
+          "offset": 0.5
+        },
+        {
+          "id": "pr-if-id-pc4_if_i",
+          "name": "pc4_if_i",
+          "side": "left",
+          "offset": 0.1
+        },
+        {
+          "id": "pr-if-id-pc4_id_o",
+          "name": "pc4_id_o",
+          "side": "right",
+          "offset": 0.1
+        },
+        {
+          "id": "pr-if-id-pc_if_i",
+          "name": "pc_if_i",
+          "side": "left",
+          "offset": 0.2
+        },
+        {
+          "id": "pr-if-id-pc_id_o",
+          "name": "pc_id_o",
+          "side": "right",
+          "offset": 0.2
+        },
+        {
+          "id": "pr-if-id-instr_if_i",
+          "name": "instr_if_i",
+          "side": "left",
+          "offset": 0.3
+        },
+        {
+          "id": "pr-if-id-instr_id_o",
+          "name": "instr_id_o",
+          "side": "right",
+          "offset": 0.3
+        },
+        {
+          "id": "pr-if-id-flush",
+          "name": "flush",
+          "side": "bottom",
+          "offset": 0.3
+        },
+        {
+          "id": "pr-if-id-stall",
+          "name": "stall",
+          "side": "bottom",
+          "offset": 0.7
+        }
+      ]
+    },
+    {
+      "id": "pr-id-ex",
+      "type": "reg",
+      "name": "PR_ID_EX",
+      "x": 772,
+      "y": 0,
+      "width": 250,
+      "height": 800,
+      "nameSize": 32,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "pr-id-ex-clk",
+          "name": "CLK",
+          "side": "top",
+          "offset": 0.5
+        },
+        {
+          "id": "pr-id-ex-pc4_id_i",
+          "name": "pc4_id_i",
+          "side": "left",
+          "offset": 0.1
+        },
+        {
+          "id": "pr-id-ex-pc4_ex_o",
+          "name": "pc4_ex_o",
+          "side": "right",
+          "offset": 0.1
+        },
+        {
+          "id": "pr-id-ex-rD1_i",
+          "name": "rD1_i",
+          "side": "left",
+          "offset": 0.2
+        },
+        {
+          "id": "pr-id-ex-rD1_o",
+          "name": "rD1_o",
+          "side": "right",
+          "offset": 0.2
+        },
+        {
+          "id": "pr-id-ex-rD2_i",
+          "name": "rD2_i",
+          "side": "left",
+          "offset": 0.25
+        },
+        {
+          "id": "pr-id-ex-rD2_o",
+          "name": "rD2_o",
+          "side": "right",
+          "offset": 0.25
+        },
+        {
+          "id": "pr-id-ex-imm_id_i",
+          "name": "imm_id_i",
+          "side": "left",
+          "offset": 0.36
+        },
+        {
+          "id": "pr-id-ex-imm_ex_o",
+          "name": "imm_ex_o",
+          "side": "right",
+          "offset": 0.36
+        },
+        {
+          "id": "pr-id-ex-rf_we_id_i",
+          "name": "rf_we_id_i",
+          "side": "left",
+          "offset": 0.6
+        },
+        {
+          "id": "pr-id-ex-rf_we_ex_o",
+          "name": "rf_we_ex_o",
+          "side": "right",
+          "offset": 0.6
+        },
+        {
+          "id": "pr-id-ex-wr_id_i",
+          "name": "wr_id_i",
+          "side": "left",
+          "offset": 0.7
+        },
+        {
+          "id": "pr-id-ex-wr_ex_o",
+          "name": "wr_ex_o",
+          "side": "right",
+          "offset": 0.7
+        },
+        {
+          "id": "pr-id-ex-control_i",
+          "name": "Control",
+          "side": "left",
+          "offset": 0.15
+        },
+        {
+          "id": "pr-id-ex-control_o",
+          "name": "Control",
+          "side": "right",
+          "offset": 0.15
+        },
+        {
+          "id": "pr-id-ex-flush",
+          "name": "flush",
+          "side": "bottom",
+          "offset": 0.3
+        },
+        {
+          "id": "pr-id-ex-fwd_in",
+          "name": "fwd_in",
+          "side": "bottom",
+          "offset": 0.7
+        },
+        {
+          "id": "port-46",
+          "name": "pc_jump_id_i",
+          "side": "left",
+          "offset": 0.8
+        },
+        {
+          "id": "port-47",
+          "name": "pc_jump_ex_o",
+          "side": "right",
+          "offset": 0.8
+        }
+      ]
+    },
+    {
+      "id": "pr-ex-mem",
+      "type": "reg",
+      "name": "PR_EX_MEM",
+      "x": 1801,
+      "y": 0,
+      "width": 250,
+      "height": 800,
+      "nameSize": 32,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "pr-ex-mem-clk",
+          "name": "CLK",
+          "side": "top",
+          "offset": 0.5
+        },
+        {
+          "id": "pr-ex-mem-rf_we_ex_i",
+          "name": "rf_we_ex_i",
+          "side": "left",
+          "offset": 0.6
+        },
+        {
+          "id": "pr-ex-mem-rf_we_mem_o",
+          "name": "rf_we_mem_o",
+          "side": "right",
+          "offset": 0.6
+        },
+        {
+          "id": "pr-ex-mem-wr_ex_i",
+          "name": "wr_ex_i",
+          "side": "left",
+          "offset": 0.7
+        },
+        {
+          "id": "pr-ex-mem-wr_mem_o",
+          "name": "wr_mem_o",
+          "side": "right",
+          "offset": 0.7
+        },
+        {
+          "id": "pr-ex-mem-alu_result_ex_i",
+          "name": "alu_result_ex_i",
+          "side": "left",
+          "offset": 0.42
+        },
+        {
+          "id": "pr-ex-mem-alu_result_mem_o",
+          "name": "alu_result_mem_o",
+          "side": "right",
+          "offset": 0.38
+        },
+        {
+          "id": "pr-ex-mem-rD2_ex_i",
+          "name": "rD2_ex_i",
+          "side": "left",
+          "offset": 0.3
+        },
+        {
+          "id": "pr-ex-mem-rD2_mem_o",
+          "name": "rD2_mem_o",
+          "side": "right",
+          "offset": 0.3
+        },
+        {
+          "id": "pr-em-mem-control_i",
+          "name": "Control",
+          "side": "left",
+          "offset": 0.15
+        },
+        {
+          "id": "pr-ex-mem-control_o",
+          "name": "Control",
+          "side": "right",
+          "offset": 0.15
+        },
+        {
+          "id": "port-133",
+          "name": "rf_wd_EX",
+          "side": "left",
+          "offset": 0.8
+        },
+        {
+          "id": "port-134",
+          "name": "rf_wd_MEM",
+          "side": "right",
+          "offset": 0.8
+        }
+      ]
+    },
+    {
+      "id": "pr-mem-wb",
+      "type": "reg",
+      "name": "PR_MEM_WB",
+      "x": 2670,
+      "y": 0,
+      "width": 250,
+      "height": 800,
+      "nameSize": 32,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "pr-mem-wb-clk",
+          "name": "CLK",
+          "side": "top",
+          "offset": 0.5
+        },
+        {
+          "id": "pr-mem-wb-rf_we_mem_i",
+          "name": "rf_we_mem_i",
+          "side": "left",
+          "offset": 0.6
+        },
+        {
+          "id": "pr-mem-wb-rf_we_wb_o",
+          "name": "rf_we_wb_o",
+          "side": "right",
+          "offset": 0.6
+        },
+        {
+          "id": "pr-mem-wb-wr_mem_i",
+          "name": "wr_mem_i",
+          "side": "left",
+          "offset": 0.7
+        },
+        {
+          "id": "pr-mem-wb-wr_wb_o",
+          "name": "wr_wb_o",
+          "side": "right",
+          "offset": 0.7
+        },
+        {
+          "id": "pr-mem-wb-alu_result_mem_i",
+          "name": "alu_result_mem_i",
+          "side": "left",
+          "offset": 0.38
+        },
+        {
+          "id": "pr-mem-wb-alu_result_wb_o",
+          "name": "alu_result_wb_o",
+          "side": "right",
+          "offset": 0.42
+        },
+        {
+          "id": "pr-mem-wb-control_i",
+          "name": "Control",
+          "side": "left",
+          "offset": 0.15
+        },
+        {
+          "id": "pr-mem-wb-control_o",
+          "name": "Control",
+          "side": "right",
+          "offset": 0.15
+        },
+        {
+          "id": "pr-mem-wb-rf_wd_i",
+          "name": "rf_wd_MEM",
+          "side": "left",
+          "offset": 0.8
+        },
+        {
+          "id": "pr-mem-wb-rf_wd_o",
+          "name": "rf_wd_WB",
+          "side": "right",
+          "offset": 0.8
+        }
+      ]
+    },
+    {
+      "id": "mod-1",
+      "type": "seq",
+      "name": "PC",
+      "x": -350,
+      "y": 50,
+      "width": 150,
+      "height": 150,
+      "nameSize": 24,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-2",
+          "name": "keep_pc",
+          "side": "left",
+          "offset": 0.2
+        },
+        {
+          "id": "port-3",
+          "name": "branch_op",
+          "side": "left",
+          "offset": 0.8
+        },
+        {
+          "id": "port-4",
+          "name": "pc4_if",
+          "side": "right",
+          "offset": 0.2
+        },
+        {
+          "id": "port-5",
+          "name": "CLK",
+          "side": "top",
+          "offset": 0.5
+        },
+        {
+          "id": "port-10",
+          "name": "braqnch_target",
+          "side": "left",
+          "offset": 0.65
+        },
+        {
+          "id": "port-11",
+          "name": "pc_if",
+          "side": "right",
+          "offset": 0.4
+        }
+      ]
+    },
+    {
+      "id": "mod-14",
+      "type": "combo",
+      "name": "IROM",
+      "x": -350,
+      "y": 402,
+      "width": 150,
+      "height": 90,
+      "nameSize": 24,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-15",
+          "name": "pc",
+          "side": "left",
+          "offset": 0.65
+        },
+        {
+          "id": "port-17",
+          "name": "Instr",
+          "side": "right",
+          "offset": 0.3
+        }
+      ]
+    },
+    {
+      "id": "mod-20",
+      "type": "extender",
+      "name": "Extender",
+      "x": 454,
+      "y": 696,
+      "width": 100,
+      "height": 60,
+      "nameSize": 14,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-21",
+          "name": "",
+          "side": "left",
+          "offset": 0.6
+        },
+        {
+          "id": "port-22",
+          "name": "",
+          "side": "right",
+          "offset": 0.5
+        }
+      ]
+    },
+    {
+      "id": "mod-23",
+      "type": "combo",
+      "name": "Decoder",
+      "x": 350,
+      "y": 1,
+      "width": 200,
+      "height": 200,
+      "nameSize": 24,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-24",
+          "name": "Instr_ID",
+          "side": "left",
+          "offset": 0.3
+        },
+        {
+          "id": "port-26",
+          "name": "Control",
+          "side": "right",
+          "offset": 0.7
+        }
+      ]
+    },
+    {
+      "id": "registerf",
+      "type": "reg",
+      "name": "RegisterF",
+      "x": 350,
+      "y": 250,
+      "width": 200,
+      "height": 300,
+      "nameSize": 24,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "#14c217",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "registerf-clk",
+          "name": "CLK",
+          "side": "top",
+          "offset": 0.5
+        },
+        {
+          "id": "registerf-rR1",
+          "name": "rR1",
+          "side": "left",
+          "offset": 0.2
+        },
+        {
+          "id": "registerf-rR2",
+          "name": "rR2",
+          "side": "left",
+          "offset": 0.4
+        },
+        {
+          "id": "registerf-wD1",
+          "name": "wD1",
+          "side": "left",
+          "offset": 0.6
+        },
+        {
+          "id": "registerf-wD2",
+          "name": "wD2",
+          "side": "left",
+          "offset": 0.8
+        },
+        {
+          "id": "registerf-we1",
+          "name": "we1",
+          "side": "bottom",
+          "offset": 0.4
+        },
+        {
+          "id": "registerf-we2",
+          "name": "we2",
+          "side": "bottom",
+          "offset": 0.6
+        },
+        {
+          "id": "registerf-rD1",
+          "name": "rD1",
+          "side": "right",
+          "offset": 0.4
+        },
+        {
+          "id": "registerf-rD2",
+          "name": "rD2",
+          "side": "right",
+          "offset": 0.6
+        }
+      ]
+    },
+    {
+      "id": "mod-32",
+      "type": "combo",
+      "name": "+",
+      "x": 693,
+      "y": 580,
+      "width": 60,
+      "height": 120,
+      "nameSize": 50,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-33",
+          "name": "",
+          "side": "left",
+          "offset": 0.3
+        },
+        {
+          "id": "port-34",
+          "name": "",
+          "side": "left",
+          "offset": 0.7
+        },
+        {
+          "id": "port-35",
+          "name": "",
+          "side": "right",
+          "offset": 0.5
+        }
+      ]
+    },
+    {
+      "id": "mod-54",
+      "type": "seq",
+      "name": "MUX (4  Pipeline Stage)",
+      "x": 1199,
+      "y": -200,
+      "width": 1000,
+      "height": 100,
+      "nameSize": 24,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-55",
+          "name": "src1",
+          "side": "left",
+          "offset": 0.3
+        },
+        {
+          "id": "port-56",
+          "name": "src2",
+          "side": "left",
+          "offset": 0.7
+        },
+        {
+          "id": "port-57",
+          "name": "Out",
+          "side": "right",
+          "offset": 0.5
+        },
+        {
+          "id": "port-58",
+          "name": "CLK",
+          "side": "top",
+          "offset": 0.5
+        },
+        {
+          "id": "port-63",
+          "name": "mul_rf_we_o",
+          "side": "top",
+          "offset": 0.1
+        },
+        {
+          "id": "port-66",
+          "name": "mul_control_i",
+          "side": "bottom",
+          "offset": 0.5
+        },
+        {
+          "id": "port-88",
+          "name": "mul_op_i",
+          "side": "bottom",
+          "offset": 0.1
+        }
+      ]
+    },
+    {
+      "id": "mod-59",
+      "type": "combo",
+      "name": "HazardUnit",
+      "x": 1201,
+      "y": 943,
+      "width": 1000,
+      "height": 120,
+      "nameSize": 24,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-60",
+          "name": "keep_pc",
+          "side": "left",
+          "offset": 0.3
+        },
+        {
+          "id": "port-62",
+          "name": "rf_wd_WB",
+          "side": "right",
+          "offset": 0.4
+        },
+        {
+          "id": "port-67",
+          "name": "mul_control_o",
+          "side": "top",
+          "offset": 0.67
+        },
+        {
+          "id": "port-130",
+          "name": "take_branch",
+          "side": "top",
+          "offset": 0.5529999999999999
+        },
+        {
+          "id": "port-138",
+          "name": "flush_IF_ID",
+          "side": "top",
+          "offset": 0.08
+        },
+        {
+          "id": "port-139",
+          "name": "stall_IF_ID",
+          "side": "top",
+          "offset": 0.2
+        },
+        {
+          "id": "port-140",
+          "name": "flush_ID_EX",
+          "side": "top",
+          "offset": 0.32
+        },
+        {
+          "id": "port-141",
+          "name": "fwd_out",
+          "side": "top",
+          "offset": 0.44
+        },
+        {
+          "id": "port-147",
+          "name": "rf_we_ex",
+          "side": "left",
+          "offset": 0.6
+        },
+        {
+          "id": "port-148",
+          "name": "wR_EX",
+          "side": "left",
+          "offset": 0.8
+        },
+        {
+          "id": "port-151",
+          "name": "wR_WB",
+          "side": "right",
+          "offset": 0.6
+        },
+        {
+          "id": "port-152",
+          "name": "rf_we_WB",
+          "side": "right",
+          "offset": 0.8
+        },
+        {
+          "id": "port-155",
+          "name": "rf_wd_MEM",
+          "side": "top",
+          "offset": 0.77
+        },
+        {
+          "id": "port-156",
+          "name": "rf_we_MEM",
+          "side": "top",
+          "offset": 0.95
+        },
+        {
+          "id": "port-157",
+          "name": "wR_MEM",
+          "side": "top",
+          "offset": 0.86
+        },
+        {
+          "id": "port-228",
+          "name": "rR1_ID",
+          "side": "bottom",
+          "offset": 0.1
+        },
+        {
+          "id": "port-229",
+          "name": "rR2_ID",
+          "side": "bottom",
+          "offset": 0.2
+        }
+      ]
+    },
+    {
+      "id": "mod-69",
+      "type": "alu",
+      "name": "ALU 1",
+      "x": 1284,
+      "y": 253,
+      "width": 170,
+      "height": 90,
+      "nameSize": 24,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-70",
+          "name": "Src1",
+          "side": "left",
+          "offset": 0.25
+        },
+        {
+          "id": "port-71",
+          "name": "Src2",
+          "side": "left",
+          "offset": 0.7
+        },
+        {
+          "id": "port-72",
+          "name": "ALUOp",
+          "side": "top",
+          "offset": 0.5
+        },
+        {
+          "id": "port-73",
+          "name": "Out",
+          "side": "right",
+          "offset": 0.5
+        }
+      ]
+    },
+    {
+      "id": "mod-74",
+      "type": "mux",
+      "name": "Src2",
+      "x": 1187,
+      "y": 168,
+      "width": 60,
+      "height": 180,
+      "nameSize": 14,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-83",
+          "name": "",
+          "side": "left",
+          "offset": 0.3333333333333333
+        },
+        {
+          "id": "port-84",
+          "name": "",
+          "side": "left",
+          "offset": 0.6666666666666666
+        },
+        {
+          "id": "port-85",
+          "name": "",
+          "side": "slopeTop",
+          "offset": 0.55
+        },
+        {
+          "id": "port-86",
+          "name": "",
+          "side": "right",
+          "offset": 0.5
+        }
+      ]
+    },
+    {
+      "id": "mod-101",
+      "type": "combo",
+      "name": "NextPC",
+      "x": 1573,
+      "y": 169,
+      "width": 150,
+      "height": 150,
+      "nameSize": 18,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-102",
+          "name": "Control",
+          "side": "left",
+          "offset": 0.3
+        },
+        {
+          "id": "port-103",
+          "name": "alu",
+          "side": "left",
+          "offset": 0.5
+        },
+        {
+          "id": "port-104",
+          "name": "NextPC",
+          "side": "right",
+          "offset": 0.3
+        },
+        {
+          "id": "port-124",
+          "name": "take_branch",
+          "side": "right",
+          "offset": 0.7
+        },
+        {
+          "id": "port-153",
+          "name": "b_target",
+          "side": "left",
+          "offset": 0.83
+        }
+      ]
+    },
+    {
+      "id": "mod-107",
+      "type": "mux",
+      "name": "WB1",
+      "x": 1487,
+      "y": 384,
+      "width": 60,
+      "height": 180,
+      "nameSize": 14,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-108",
+          "name": "",
+          "side": "left",
+          "offset": 0.25
+        },
+        {
+          "id": "port-109",
+          "name": "",
+          "side": "left",
+          "offset": 0.5
+        },
+        {
+          "id": "port-110",
+          "name": "",
+          "side": "slopeTop",
+          "offset": 0.55
+        },
+        {
+          "id": "port-111",
+          "name": "",
+          "side": "right",
+          "offset": 0.5
+        },
+        {
+          "id": "port-112",
+          "name": "",
+          "side": "left",
+          "offset": 0.75
+        }
+      ]
+    },
+    {
+      "id": "mod-164",
+      "type": "seq",
+      "name": "DRAM",
+      "x": 2226,
+      "y": 490,
+      "width": 300,
+      "height": 200,
+      "nameSize": 24,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-165",
+          "name": "a[17:2]",
+          "side": "left",
+          "offset": 0.5
+        },
+        {
+          "id": "port-167",
+          "name": "spo",
+          "side": "right",
+          "offset": 0.5
+        },
+        {
+          "id": "port-168",
+          "name": "CLK",
+          "side": "bottom",
+          "offset": 0.5
+        },
+        {
+          "id": "port-177",
+          "name": "din",
+          "side": "top",
+          "offset": 0.3
+        },
+        {
+          "id": "port-178",
+          "name": "we",
+          "side": "top",
+          "offset": 0.7
+        }
+      ]
+    },
+    {
+      "id": "mod-169",
+      "type": "combo",
+      "name": "StoreUnit",
+      "x": 2226,
+      "y": 180,
+      "width": 300,
+      "height": 200,
+      "nameSize": 18,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-170",
+          "name": "store_data_i",
+          "side": "left",
+          "offset": 0.3
+        },
+        {
+          "id": "port-171",
+          "name": "addr",
+          "side": "left",
+          "offset": 0.7
+        },
+        {
+          "id": "port-173",
+          "name": "dram_we",
+          "side": "top",
+          "offset": 0.3
+        },
+        {
+          "id": "port-174",
+          "name": "sl_type",
+          "side": "top",
+          "offset": 0.7
+        },
+        {
+          "id": "port-175",
+          "name": "store_data_o",
+          "side": "bottom",
+          "offset": 0.3
+        },
+        {
+          "id": "port-176",
+          "name": "wstrb_o",
+          "side": "bottom",
+          "offset": 0.7
+        }
+      ]
+    },
+    {
+      "id": "mod-192",
+      "type": "mux",
+      "name": "fwd",
+      "x": 3577,
+      "y": 638,
+      "width": 60,
+      "height": 180,
+      "nameSize": 14,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-193",
+          "name": "",
+          "side": "left",
+          "offset": 0.25
+        },
+        {
+          "id": "port-194",
+          "name": "",
+          "side": "left",
+          "offset": 0.5
+        },
+        {
+          "id": "port-195",
+          "name": "",
+          "side": "slopeTop",
+          "offset": 0.55
+        },
+        {
+          "id": "port-196",
+          "name": "",
+          "side": "right",
+          "offset": 0.5
+        },
+        {
+          "id": "port-197",
+          "name": "",
+          "side": "left",
+          "offset": 0.75
+        }
+      ]
+    },
+    {
+      "id": "mod-198",
+      "type": "mux",
+      "name": "WB2",
+      "x": 3358,
+      "y": 514,
+      "width": 60,
+      "height": 180,
+      "nameSize": 14,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-199",
+          "name": "",
+          "side": "left",
+          "offset": 0.3
+        },
+        {
+          "id": "port-200",
+          "name": "",
+          "side": "left",
+          "offset": 0.7
+        },
+        {
+          "id": "port-201",
+          "name": "",
+          "side": "slopeTop",
+          "offset": 0.55
+        },
+        {
+          "id": "port-202",
+          "name": "",
+          "side": "right",
+          "offset": 0.5
+        }
+      ]
+    },
+    {
+      "id": "mod-209",
+      "type": "combo",
+      "name": "LoadUnit",
+      "x": 2996,
+      "y": 180,
+      "width": 300,
+      "height": 200,
+      "nameSize": 18,
+      "showType": false,
+      "fill": "",
+      "strokeColor": "",
+      "strokeWidth": 3,
+      "muxInputs": 2,
+      "muxControlSide": "top",
+      "ports": [
+        {
+          "id": "port-210",
+          "name": "load_data_i",
+          "side": "left",
+          "offset": 0.3
+        },
+        {
+          "id": "port-211",
+          "name": "addr",
+          "side": "left",
+          "offset": 0.7
+        },
+        {
+          "id": "port-213",
+          "name": "sl_type",
+          "side": "top",
+          "offset": 0.5
+        },
+        {
+          "id": "port-214",
+          "name": "load_data_o",
+          "side": "right",
+          "offset": 0.5
+        }
+      ]
+    }
+  ],
+  "wires": [
+    {
+      "id": "wire-12",
+      "from": {
+        "moduleId": "mod-1",
+        "portId": "port-4"
+      },
+      "to": {
+        "moduleId": "pr-if-id",
+        "portId": "pr-if-id-pc4_if_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": -88,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-13",
+      "from": {
+        "moduleId": "mod-1",
+        "portId": "port-11"
+      },
+      "to": {
+        "moduleId": "pr-if-id",
+        "portId": "pr-if-id-pc_if_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": -160,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-18",
+      "from": {
+        "moduleId": "mod-14",
+        "portId": "port-17"
+      },
+      "to": {
+        "moduleId": "pr-if-id",
+        "portId": "pr-if-id-instr_if_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": -73,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-36",
+      "from": {
+        "moduleId": "mod-20",
+        "portId": "port-22"
+      },
+      "to": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-imm_id_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 643,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-37",
+      "from": {
+        "moduleId": "mod-20",
+        "portId": "port-22"
+      },
+      "to": {
+        "moduleId": "mod-32",
+        "portId": "port-34"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 656,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-38",
+      "from": {
+        "moduleId": "pr-if-id",
+        "portId": "pr-if-id-pc_id_o"
+      },
+      "to": {
+        "moduleId": "mod-32",
+        "portId": "port-33"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 240,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-39",
+      "from": {
+        "moduleId": "pr-if-id",
+        "portId": "pr-if-id-instr_id_o"
+      },
+      "to": {
+        "moduleId": "mod-23",
+        "portId": "port-24"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 275,
+      "bends": null,
+      "color": "#ff0000",
+      "width": 10,
+      "style": "solid"
+    },
+    {
+      "id": "wire-40",
+      "from": {
+        "moduleId": "mod-20",
+        "portId": "port-21"
+      },
+      "to": {
+        "moduleId": "pr-if-id",
+        "portId": "pr-if-id-instr_id_o"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 275,
+      "bends": null,
+      "color": "#ff0000",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-41",
+      "from": {
+        "moduleId": "registerf",
+        "portId": "registerf-rR1"
+      },
+      "to": {
+        "moduleId": "pr-if-id",
+        "portId": "pr-if-id-instr_id_o"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 275,
+      "bends": null,
+      "color": "#ff0000",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-42",
+      "from": {
+        "moduleId": "pr-if-id",
+        "portId": "pr-if-id-instr_id_o"
+      },
+      "to": {
+        "moduleId": "registerf",
+        "portId": "registerf-rR2"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 275,
+      "bends": null,
+      "color": "#ff0000",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-43",
+      "from": {
+        "moduleId": "registerf",
+        "portId": "registerf-rD1"
+      },
+      "to": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-rD1_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 575,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-44",
+      "from": {
+        "moduleId": "registerf",
+        "portId": "registerf-rD2"
+      },
+      "to": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-rD2_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 596,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-45",
+      "from": {
+        "moduleId": "pr-if-id",
+        "portId": "pr-if-id-pc4_id_o"
+      },
+      "to": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-pc4_id_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 525,
+      "bends": [
+        {
+          "x": 248,
+          "y": 80
+        },
+        {
+          "x": 248,
+          "y": -21
+        },
+        {
+          "x": 576,
+          "y": -21
+        },
+        {
+          "x": 576,
+          "y": 80
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-48",
+      "from": {
+        "moduleId": "mod-32",
+        "portId": "port-35"
+      },
+      "to": {
+        "moduleId": "pr-id-ex",
+        "portId": "port-46"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 804,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-49",
+      "from": {
+        "moduleId": "mod-23",
+        "portId": "port-26"
+      },
+      "to": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-control_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 700,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-51",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-rf_we_id_i"
+      },
+      "to": {
+        "moduleId": "mod-23",
+        "portId": "port-26"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 700,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-52",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-wr_id_i"
+      },
+      "to": {
+        "moduleId": "pr-if-id",
+        "portId": "pr-if-id-instr_id_o"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 275,
+      "bends": null,
+      "color": "#ff0000",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-87",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-control_o"
+      },
+      "to": {
+        "moduleId": "mod-74",
+        "portId": "port-85"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1221,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-89",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-control_o"
+      },
+      "to": {
+        "moduleId": "mod-54",
+        "portId": "port-88"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1301,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-90",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-rD1_o"
+      },
+      "to": {
+        "moduleId": "mod-69",
+        "portId": "port-70"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1273,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-92",
+      "from": {
+        "moduleId": "mod-74",
+        "portId": "port-86"
+      },
+      "to": {
+        "moduleId": "mod-69",
+        "portId": "port-71"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1263,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-93",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-rD2_o"
+      },
+      "to": {
+        "moduleId": "mod-74",
+        "portId": "port-83"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1176,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-94",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-imm_ex_o"
+      },
+      "to": {
+        "moduleId": "mod-74",
+        "portId": "port-84"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1086,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-97",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-wr_ex_o"
+      },
+      "to": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-wr_ex_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1450,
+      "bends": [
+        {
+          "x": 1051,
+          "y": 560
+        },
+        {
+          "x": 1051,
+          "y": 590
+        },
+        {
+          "x": 1714,
+          "y": 590
+        },
+        {
+          "x": 1714,
+          "y": 560
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-99",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-control_o"
+      },
+      "to": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-em-mem-control_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1450,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-100",
+      "from": {
+        "moduleId": "mod-69",
+        "portId": "port-72"
+      },
+      "to": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-control_o"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1370,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-113",
+      "from": {
+        "moduleId": "mod-54",
+        "portId": "port-63"
+      },
+      "to": {
+        "moduleId": "registerf",
+        "portId": "registerf-we2"
+      },
+      "label": "",
+      "route": "V",
+      "bend": 175,
+      "bends": [
+        {
+          "x": 1299,
+          "y": -213
+        },
+        {
+          "x": 621,
+          "y": -213
+        },
+        {
+          "x": 621,
+          "y": 585
+        },
+        {
+          "x": 470,
+          "y": 585
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-114",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-control_o"
+      },
+      "to": {
+        "moduleId": "mod-107",
+        "portId": "port-110"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1521,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-115",
+      "from": {
+        "moduleId": "mod-69",
+        "portId": "port-73"
+      },
+      "to": {
+        "moduleId": "mod-107",
+        "portId": "port-108"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1470,
+      "bends": null,
+      "color": "#ffdd00",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-116",
+      "from": {
+        "moduleId": "mod-69",
+        "portId": "port-73"
+      },
+      "to": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-alu_result_ex_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1470,
+      "bends": null,
+      "color": "#ffdd00",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-118",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-pc4_ex_o"
+      },
+      "to": {
+        "moduleId": "mod-107",
+        "portId": "port-109"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1108,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-119",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-imm_ex_o"
+      },
+      "to": {
+        "moduleId": "mod-107",
+        "portId": "port-112"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1086,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-120",
+      "from": {
+        "moduleId": "mod-69",
+        "portId": "port-73"
+      },
+      "to": {
+        "moduleId": "mod-101",
+        "portId": "port-103"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1541,
+      "bends": null,
+      "color": "#ffdd00",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-121",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-rD1_o"
+      },
+      "to": {
+        "moduleId": "mod-54",
+        "portId": "port-55"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1134,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-122",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-rD2_o"
+      },
+      "to": {
+        "moduleId": "mod-54",
+        "portId": "port-56"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1152,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-123",
+      "from": {
+        "moduleId": "mod-101",
+        "portId": "port-102"
+      },
+      "to": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-control_o"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1544,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-127",
+      "from": {
+        "moduleId": "mod-101",
+        "portId": "port-124"
+      },
+      "to": {
+        "moduleId": "mod-1",
+        "portId": "port-3"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 681,
+      "bends": [
+        {
+          "x": 1754,
+          "y": 274
+        },
+        {
+          "x": 1754,
+          "y": -65
+        },
+        {
+          "x": -427,
+          "y": -65
+        },
+        {
+          "x": -427,
+          "y": 170
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-128",
+      "from": {
+        "moduleId": "mod-101",
+        "portId": "port-104"
+      },
+      "to": {
+        "moduleId": "mod-1",
+        "portId": "port-10"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 681,
+      "bends": [
+        {
+          "x": 1737,
+          "y": 214
+        },
+        {
+          "x": 1737,
+          "y": -45
+        },
+        {
+          "x": -410,
+          "y": -45
+        },
+        {
+          "x": -410,
+          "y": 148
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-129",
+      "from": {
+        "moduleId": "mod-1",
+        "portId": "port-11"
+      },
+      "to": {
+        "moduleId": "mod-14",
+        "portId": "port-15"
+      },
+      "label": "",
+      "route": "H",
+      "bend": -275,
+      "bends": [
+        {
+          "x": -160,
+          "y": 110
+        },
+        {
+          "x": -160,
+          "y": 384
+        },
+        {
+          "x": -364,
+          "y": 384
+        },
+        {
+          "x": -364,
+          "y": 459
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-131",
+      "from": {
+        "moduleId": "mod-101",
+        "portId": "port-124"
+      },
+      "to": {
+        "moduleId": "mod-59",
+        "portId": "port-130"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1754,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-132",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-rD2_o"
+      },
+      "to": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-rD2_ex_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1450,
+      "bends": [
+        {
+          "x": 1152,
+          "y": 200
+        },
+        {
+          "x": 1152,
+          "y": 81
+        },
+        {
+          "x": 1790,
+          "y": 81
+        },
+        {
+          "x": 1790,
+          "y": 240
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-135",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-rf_we_ex_o"
+      },
+      "to": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-rf_we_ex_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1450,
+      "bends": [
+        {
+          "x": 1066,
+          "y": 480
+        },
+        {
+          "x": 1066,
+          "y": 574
+        },
+        {
+          "x": 1692,
+          "y": 574
+        },
+        {
+          "x": 1692,
+          "y": 480
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-136",
+      "from": {
+        "moduleId": "mod-107",
+        "portId": "port-111"
+      },
+      "to": {
+        "moduleId": "pr-ex-mem",
+        "portId": "port-133"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1674,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-137",
+      "from": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-rf_we_wb_o"
+      },
+      "to": {
+        "moduleId": "registerf",
+        "portId": "registerf-we1"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1589,
+      "bends": [
+        {
+          "x": 3032,
+          "y": 480
+        },
+        {
+          "x": 3032,
+          "y": 1139
+        },
+        {
+          "x": 430,
+          "y": 1139
+        },
+        {
+          "x": 430,
+          "y": 549
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-142",
+      "from": {
+        "moduleId": "mod-59",
+        "portId": "port-60"
+      },
+      "to": {
+        "moduleId": "mod-1",
+        "portId": "port-2"
+      },
+      "label": "",
+      "route": "H",
+      "bend": -384,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-143",
+      "from": {
+        "moduleId": "mod-59",
+        "portId": "port-138"
+      },
+      "to": {
+        "moduleId": "pr-if-id",
+        "portId": "pr-if-id-flush"
+      },
+      "label": "",
+      "route": "V",
+      "bend": 920,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-144",
+      "from": {
+        "moduleId": "mod-59",
+        "portId": "port-139"
+      },
+      "to": {
+        "moduleId": "pr-if-id",
+        "portId": "pr-if-id-stall"
+      },
+      "label": "",
+      "route": "V",
+      "bend": 880,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-145",
+      "from": {
+        "moduleId": "mod-59",
+        "portId": "port-140"
+      },
+      "to": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-flush"
+      },
+      "label": "",
+      "route": "V",
+      "bend": 860,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-146",
+      "from": {
+        "moduleId": "mod-59",
+        "portId": "port-141"
+      },
+      "to": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-fwd_in"
+      },
+      "label": "",
+      "route": "V",
+      "bend": 840,
+      "bends": null,
+      "color": "#00dba4",
+      "width": 4,
+      "style": "solid"
+    },
+    {
+      "id": "wire-149",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-rf_we_ex_o"
+      },
+      "to": {
+        "moduleId": "mod-59",
+        "portId": "port-147"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1066,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-150",
+      "from": {
+        "moduleId": "pr-id-ex",
+        "portId": "pr-id-ex-wr_ex_o"
+      },
+      "to": {
+        "moduleId": "mod-59",
+        "portId": "port-148"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1051,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-154",
+      "from": {
+        "moduleId": "mod-101",
+        "portId": "port-153"
+      },
+      "to": {
+        "moduleId": "pr-id-ex",
+        "portId": "port-47"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1561,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-158",
+      "from": {
+        "moduleId": "pr-ex-mem",
+        "portId": "port-134"
+      },
+      "to": {
+        "moduleId": "mod-59",
+        "portId": "port-155"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2010,
+      "bends": [
+        {
+          "x": 2077,
+          "y": 640
+        },
+        {
+          "x": 2077,
+          "y": 911
+        },
+        {
+          "x": 1971,
+          "y": 911
+        },
+        {
+          "x": 1971,
+          "y": 1004
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-159",
+      "from": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-wr_mem_o"
+      },
+      "to": {
+        "moduleId": "mod-59",
+        "portId": "port-157"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2055,
+      "bends": [
+        {
+          "x": 2116,
+          "y": 560
+        },
+        {
+          "x": 2116,
+          "y": 967
+        },
+        {
+          "x": 2062,
+          "y": 967
+        },
+        {
+          "x": 2062,
+          "y": 1004
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-160",
+      "from": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-rf_we_mem_o"
+      },
+      "to": {
+        "moduleId": "mod-59",
+        "portId": "port-156"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2100,
+      "bends": [
+        {
+          "x": 2152,
+          "y": 480
+        },
+        {
+          "x": 2152,
+          "y": 980
+        },
+        {
+          "x": 2152,
+          "y": 980
+        },
+        {
+          "x": 2152,
+          "y": 1004
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-161",
+      "from": {
+        "moduleId": "mod-59",
+        "portId": "port-152"
+      },
+      "to": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-rf_we_wb_o"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 3032,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-162",
+      "from": {
+        "moduleId": "mod-59",
+        "portId": "port-151"
+      },
+      "to": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-wr_wb_o"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2995,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-179",
+      "from": {
+        "moduleId": "mod-169",
+        "portId": "port-176"
+      },
+      "to": {
+        "moduleId": "mod-164",
+        "portId": "port-178"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2436,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-180",
+      "from": {
+        "moduleId": "mod-169",
+        "portId": "port-175"
+      },
+      "to": {
+        "moduleId": "mod-164",
+        "portId": "port-177"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2316,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-181",
+      "from": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-control_o"
+      },
+      "to": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-control_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2426,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-182",
+      "from": {
+        "moduleId": "mod-169",
+        "portId": "port-173"
+      },
+      "to": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-control_o"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2317,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-183",
+      "from": {
+        "moduleId": "mod-169",
+        "portId": "port-174"
+      },
+      "to": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-control_o"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2436,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-184",
+      "from": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-alu_result_mem_o"
+      },
+      "to": {
+        "moduleId": "mod-169",
+        "portId": "port-171"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2187,
+      "bends": null,
+      "color": "#ffdd00",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-185",
+      "from": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-rD2_mem_o"
+      },
+      "to": {
+        "moduleId": "mod-169",
+        "portId": "port-170"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2151,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-186",
+      "from": {
+        "moduleId": "mod-164",
+        "portId": "port-165"
+      },
+      "to": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-alu_result_mem_o"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2187,
+      "bends": null,
+      "color": "#ffdd00",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-187",
+      "from": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-rf_we_mem_o"
+      },
+      "to": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-rf_we_mem_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2361,
+      "bends": [
+        {
+          "x": 2152,
+          "y": 480
+        },
+        {
+          "x": 2152,
+          "y": 840
+        },
+        {
+          "x": 2604,
+          "y": 840
+        },
+        {
+          "x": 2604,
+          "y": 480
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-188",
+      "from": {
+        "moduleId": "pr-ex-mem",
+        "portId": "port-134"
+      },
+      "to": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-rf_wd_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2361,
+      "bends": [
+        {
+          "x": 2077,
+          "y": 640
+        },
+        {
+          "x": 2077,
+          "y": 911
+        },
+        {
+          "x": 2653,
+          "y": 911
+        },
+        {
+          "x": 2653,
+          "y": 640
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-189",
+      "from": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-wr_mem_o"
+      },
+      "to": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-wr_mem_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2361,
+      "bends": [
+        {
+          "x": 2116,
+          "y": 560
+        },
+        {
+          "x": 2116,
+          "y": 876
+        },
+        {
+          "x": 2629,
+          "y": 876
+        },
+        {
+          "x": 2629,
+          "y": 560
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-190",
+      "from": {
+        "moduleId": "pr-ex-mem",
+        "portId": "pr-ex-mem-alu_result_mem_o"
+      },
+      "to": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-alu_result_mem_i"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2361,
+      "bends": [
+        {
+          "x": 2187,
+          "y": 304
+        },
+        {
+          "x": 2187,
+          "y": 153
+        },
+        {
+          "x": 2618,
+          "y": 153
+        },
+        {
+          "x": 2618,
+          "y": 304
+        }
+      ],
+      "color": "#ffdd00",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-191",
+      "from": {
+        "moduleId": "mod-54",
+        "portId": "port-66"
+      },
+      "to": {
+        "moduleId": "mod-59",
+        "portId": "port-67"
+      },
+      "label": "",
+      "route": "V",
+      "bend": 451,
+      "bends": [
+        {
+          "x": 1699,
+          "y": -85
+        },
+        {
+          "x": 1774,
+          "y": -85
+        },
+        {
+          "x": 1774,
+          "y": 833
+        },
+        {
+          "x": 1871,
+          "y": 833
+        }
+      ],
+      "color": "#ff5cbb",
+      "width": 5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-204",
+      "from": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-rf_wd_o"
+      },
+      "to": {
+        "moduleId": "mod-198",
+        "portId": "port-200"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 3225,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-216",
+      "from": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-alu_result_wb_o"
+      },
+      "to": {
+        "moduleId": "mod-209",
+        "portId": "port-211"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2961,
+      "bends": null,
+      "color": "#ffdd00",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-217",
+      "from": {
+        "moduleId": "mod-164",
+        "portId": "port-167"
+      },
+      "to": {
+        "moduleId": "mod-209",
+        "portId": "port-210"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 2790,
+      "bends": [
+        {
+          "x": 2573,
+          "y": 590
+        },
+        {
+          "x": 2573,
+          "y": -26
+        },
+        {
+          "x": 2950,
+          "y": -26
+        },
+        {
+          "x": 2950,
+          "y": 240
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-218",
+      "from": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-control_o"
+      },
+      "to": {
+        "moduleId": "mod-209",
+        "portId": "port-213"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 3146,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-219",
+      "from": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-control_o"
+      },
+      "to": {
+        "moduleId": "mod-198",
+        "portId": "port-201"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 3392,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-220",
+      "from": {
+        "moduleId": "mod-209",
+        "portId": "port-214"
+      },
+      "to": {
+        "moduleId": "mod-198",
+        "portId": "port-199"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 3329,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-221",
+      "from": {
+        "moduleId": "mod-198",
+        "portId": "port-202"
+      },
+      "to": {
+        "moduleId": "registerf",
+        "portId": "registerf-wD1"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1884,
+      "bends": [
+        {
+          "x": 3458,
+          "y": 604
+        },
+        {
+          "x": 3458,
+          "y": 1171
+        },
+        {
+          "x": 310,
+          "y": 1171
+        },
+        {
+          "x": 310,
+          "y": 430
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-222",
+      "from": {
+        "moduleId": "mod-54",
+        "portId": "port-57"
+      },
+      "to": {
+        "moduleId": "registerf",
+        "portId": "registerf-wD2"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 1275,
+      "bends": [
+        {
+          "x": 2230,
+          "y": -150
+        },
+        {
+          "x": 2230,
+          "y": -229
+        },
+        {
+          "x": 328,
+          "y": -229
+        },
+        {
+          "x": 328,
+          "y": 490
+        }
+      ],
+      "color": "#263238",
+      "width": 4,
+      "style": "solid"
+    },
+    {
+      "id": "wire-223",
+      "from": {
+        "moduleId": "mod-192",
+        "portId": "port-196"
+      },
+      "to": {
+        "moduleId": "mod-59",
+        "portId": "port-62"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 3699,
+      "bends": null,
+      "color": "#00dba4",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-224",
+      "from": {
+        "moduleId": "mod-54",
+        "portId": "port-57"
+      },
+      "to": {
+        "moduleId": "mod-192",
+        "portId": "port-193"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 3548,
+      "bends": null,
+      "color": "#263238",
+      "width": 4,
+      "style": "solid"
+    },
+    {
+      "id": "wire-225",
+      "from": {
+        "moduleId": "mod-209",
+        "portId": "port-214"
+      },
+      "to": {
+        "moduleId": "mod-192",
+        "portId": "port-194"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 3529,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-226",
+      "from": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-rf_wd_o"
+      },
+      "to": {
+        "moduleId": "mod-192",
+        "portId": "port-197"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 3249,
+      "bends": null,
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-227",
+      "from": {
+        "moduleId": "pr-mem-wb",
+        "portId": "pr-mem-wb-control_o"
+      },
+      "to": {
+        "moduleId": "mod-192",
+        "portId": "port-195"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 3610,
+      "bends": null,
+      "color": "#00aaff",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-230",
+      "from": {
+        "moduleId": "registerf",
+        "portId": "registerf-rD1"
+      },
+      "to": {
+        "moduleId": "mod-59",
+        "portId": "port-228"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 925,
+      "bends": [
+        {
+          "x": 575,
+          "y": 370
+        },
+        {
+          "x": 575,
+          "y": 1096
+        },
+        {
+          "x": 1301,
+          "y": 1096
+        },
+        {
+          "x": 1301,
+          "y": 1062
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    },
+    {
+      "id": "wire-231",
+      "from": {
+        "moduleId": "registerf",
+        "portId": "registerf-rD2"
+      },
+      "to": {
+        "moduleId": "mod-59",
+        "portId": "port-229"
+      },
+      "label": "",
+      "route": "H",
+      "bend": 975,
+      "bends": [
+        {
+          "x": 596,
+          "y": 430
+        },
+        {
+          "x": 596,
+          "y": 1118
+        },
+        {
+          "x": 1401,
+          "y": 1118
+        },
+        {
+          "x": 1401,
+          "y": 1062
+        }
+      ],
+      "color": "#263238",
+      "width": 2.5,
+      "style": "solid"
+    }
+  ]
+}
