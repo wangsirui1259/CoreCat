@@ -60,7 +60,7 @@ export const MODULE_LIBRARY = {
   mux: {
     label: "M",
     width: 60,
-    height: 300,
+    height: 180,
     ports: [],
   },
 };
@@ -70,11 +70,11 @@ export const DEFAULT_MODULE = {
   showType: false,
   fill: "",
   strokeColor: "",
-  strokeWidth: 2,
+  strokeWidth: 3,
 };
 
 export const MUX_DEFAULT = {
-  inputs: 4,
+  inputs: 2,
   controlSide: "top",
   controlOffsetTop: 0.55,
   controlOffsetBottom: 0.55,

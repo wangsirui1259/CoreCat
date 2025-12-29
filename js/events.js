@@ -20,6 +20,7 @@ let endPanHandler = null;
 let onWireDragHandler = null;
 let endWireDragHandler = null;
 const MODULE_CLIPBOARD_OFFSET = 24;
+const MODULE_DRAG_MIME = "application/x-corecat-module";
 let moduleClipboard = null;
 
 /**
@@ -571,7 +572,8 @@ export function initPalette() {
   const paletteItems = document.querySelectorAll(".palette-item");
   paletteItems.forEach((item) => {
     item.addEventListener("dragstart", (event) => {
-      event.dataTransfer.setData("text/plain", item.dataset.type);
+      event.dataTransfer.setData(MODULE_DRAG_MIME, item.dataset.type);
+      event.dataTransfer.effectAllowed = "copy";
     });
     item.addEventListener("click", () => {
       const type = item.dataset.type;
@@ -585,15 +587,24 @@ export function initPalette() {
   });
 
   canvas.addEventListener("dragover", (event) => {
-    event.preventDefault();
+    if (!event.dataTransfer) {
+      return;
+    }
+    if (Array.from(event.dataTransfer.types || []).includes(MODULE_DRAG_MIME)) {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "copy";
+    }
   });
 
   canvas.addEventListener("drop", (event) => {
-    event.preventDefault();
-    const type = event.dataTransfer.getData("text/plain");
+    if (!event.dataTransfer) {
+      return;
+    }
+    const type = event.dataTransfer.getData(MODULE_DRAG_MIME);
     if (!type) {
       return;
     }
+    event.preventDefault();
     const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.seq;
     const point = getCanvasPoint(event);
     createModule(type, point.x - library.width / 2, point.y - library.height / 2, select);

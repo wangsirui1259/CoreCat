@@ -73,10 +73,10 @@ function getObstacleModules(wire, includeEndpoints = false) {
  */
 function checkPathCollision(wire, start, end) {
   const allModules = getObstacleModules(wire, true);
-  
+
   for (const mod of allModules) {
     const rect = getModuleBounds(mod);
-    
+
     if (wire.route === "V") {
       const midY = wire.bend;
       if (vLineIntersectsRect(start.x, start.y, midY, rect)) return true;
@@ -89,7 +89,7 @@ function checkPathCollision(wire, start, end) {
       if (hLineIntersectsRect(end.y, midX, end.x, rect)) return true;
     }
   }
-  
+
   return false;
 }
 
@@ -99,25 +99,25 @@ function checkPathCollision(wire, start, end) {
 function computeSmartRoute(wire, start, end) {
   const allModules = getObstacleModules(wire, true);
   if (allModules.length === 0) return null;
-  
+
   const margin = WIRE_MARGIN;
-  
+
   const minX = Math.min(start.x, end.x);
   const maxX = Math.max(start.x, end.x);
   const minY = Math.min(start.y, end.y);
   const maxY = Math.max(start.y, end.y);
-  
+
   const relevantModules = allModules.filter((mod) => {
     const rect = getModuleBounds(mod, margin);
     return !(rect.right < minX - margin || rect.left > maxX + margin ||
-             rect.bottom < minY - margin || rect.top > maxY + margin);
+      rect.bottom < minY - margin || rect.top > maxY + margin);
   });
-  
+
   if (relevantModules.length === 0) return null;
-  
+
   let combinedLeft = Infinity, combinedRight = -Infinity;
   let combinedTop = Infinity, combinedBottom = -Infinity;
-  
+
   for (const mod of relevantModules) {
     const rect = getModuleBounds(mod, margin);
     combinedLeft = Math.min(combinedLeft, rect.left);
@@ -125,10 +125,10 @@ function computeSmartRoute(wire, start, end) {
     combinedTop = Math.min(combinedTop, rect.top);
     combinedBottom = Math.max(combinedBottom, rect.bottom);
   }
-  
+
   if (wire.route === "H") {
     let midX1, midX2;
-    
+
     if (start.x >= combinedRight - margin) {
       midX1 = combinedRight + margin;
     } else if (start.x <= combinedLeft + margin) {
@@ -138,7 +138,7 @@ function computeSmartRoute(wire, start, end) {
       const distToLeft = start.x - combinedLeft;
       midX1 = distToRight < distToLeft ? combinedRight + margin : combinedLeft - margin;
     }
-    
+
     if (end.x >= combinedRight - margin) {
       midX2 = combinedRight + margin;
     } else if (end.x <= combinedLeft + margin) {
@@ -148,7 +148,7 @@ function computeSmartRoute(wire, start, end) {
       const distToLeft = end.x - combinedLeft;
       midX2 = distToRight < distToLeft ? combinedRight + margin : combinedLeft - margin;
     }
-    
+
     const topY = combinedTop - margin;
     const routeAbove = [
       { x: midX1, y: start.y },
@@ -156,7 +156,7 @@ function computeSmartRoute(wire, start, end) {
       { x: midX2, y: topY },
       { x: midX2, y: end.y },
     ];
-    
+
     const bottomY = combinedBottom + margin;
     const routeBelow = [
       { x: midX1, y: start.y },
@@ -164,14 +164,14 @@ function computeSmartRoute(wire, start, end) {
       { x: midX2, y: bottomY },
       { x: midX2, y: end.y },
     ];
-    
+
     const distAbove = Math.abs(topY - start.y) + Math.abs(topY - end.y);
     const distBelow = Math.abs(bottomY - start.y) + Math.abs(bottomY - end.y);
-    
+
     return distAbove < distBelow ? routeAbove : routeBelow;
   } else {
     let midY1, midY2;
-    
+
     if (start.y >= combinedBottom - margin) {
       midY1 = combinedBottom + margin;
     } else if (start.y <= combinedTop + margin) {
@@ -181,7 +181,7 @@ function computeSmartRoute(wire, start, end) {
       const distToTop = start.y - combinedTop;
       midY1 = distToBottom < distToTop ? combinedBottom + margin : combinedTop - margin;
     }
-    
+
     if (end.y >= combinedBottom - margin) {
       midY2 = combinedBottom + margin;
     } else if (end.y <= combinedTop + margin) {
@@ -191,7 +191,7 @@ function computeSmartRoute(wire, start, end) {
       const distToTop = end.y - combinedTop;
       midY2 = distToBottom < distToTop ? combinedBottom + margin : combinedTop - margin;
     }
-    
+
     const leftX = combinedLeft - margin;
     const routeLeft = [
       { x: start.x, y: midY1 },
@@ -199,7 +199,7 @@ function computeSmartRoute(wire, start, end) {
       { x: leftX, y: midY2 },
       { x: end.x, y: midY2 },
     ];
-    
+
     const rightX = combinedRight + margin;
     const routeRight = [
       { x: start.x, y: midY1 },
@@ -207,10 +207,10 @@ function computeSmartRoute(wire, start, end) {
       { x: rightX, y: midY2 },
       { x: end.x, y: midY2 },
     ];
-    
+
     const distLeft = Math.abs(leftX - start.x) + Math.abs(leftX - end.x);
     const distRight = Math.abs(rightX - start.x) + Math.abs(rightX - end.x);
-    
+
     return distLeft < distRight ? routeLeft : routeRight;
   }
 }
@@ -222,12 +222,12 @@ export function setWireSmartBends(wire) {
   const start = getPortPositionByRef(wire.from);
   const end = getPortPositionByRef(wire.to);
   if (!start || !end) return;
-  
+
   if (!checkPathCollision(wire, start, end)) {
     wire.bends = null;
     return;
   }
-  
+
   const smartRoute = computeSmartRoute(wire, start, end);
   if (smartRoute) {
     wire.bends = smartRoute.map((p) => ({ x: Math.round(p.x), y: Math.round(p.y) }));
@@ -268,7 +268,7 @@ export function buildWirePath(wire, start, end) {
     path += ` L ${end.x} ${end.y}`;
     return path;
   }
-  
+
   if (wire.route === "V") {
     const midY = wire.bend;
     return `M ${start.x} ${start.y} L ${start.x} ${midY} L ${end.x} ${midY} L ${end.x} ${end.y}`;
@@ -289,7 +289,7 @@ export function getWireHandlePositions(wire, start, end) {
     // 线段由 start -> bends[0] -> bends[1] -> ... -> bends[n-1] -> end 组成
     const handles = [];
     const points = [start, ...wire.bends, end];
-    
+
     for (let i = 0; i < points.length - 1; i++) {
       const p1 = points[i];
       const p2 = points[i + 1];
@@ -300,17 +300,17 @@ export function getWireHandlePositions(wire, start, end) {
       // 使用精确的 Y 坐标比较来判断是否为水平线段
       const isHorizontal = p1.y === p2.y;
       // segmentIndex 表示线段索引，direction 表示线段方向（用于约束拖拽）
-      handles.push({ 
-        x: midX, 
-        y: midY, 
-        segmentIndex: i, 
+      handles.push({
+        x: midX,
+        y: midY,
+        segmentIndex: i,
         isHorizontal: isHorizontal,
         index: i  // 保持兼容性
       });
     }
     return handles;
   }
-  
+
   if (wire.route === "V") {
     return [{ x: (start.x + end.x) / 2, y: wire.bend, index: -1 }];
   }
@@ -325,7 +325,7 @@ export function wireHandlePosition(wire, start, end) {
     const midIndex = Math.floor(wire.bends.length / 2);
     return { x: wire.bends[midIndex].x, y: wire.bends[midIndex].y };
   }
-  
+
   if (wire.route === "V") {
     return { x: (start.x + end.x) / 2, y: wire.bend };
   }

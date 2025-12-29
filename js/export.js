@@ -280,7 +280,7 @@ export function buildExportSvg(options) {
         }
         return;
       }
-      parts.push(`<circle cx="${local.x}" cy="${local.y}" r="5" fill="#1d262b" stroke="#f2c14e" stroke-width="2"></circle>`);
+      parts.push(`<circle cx="${local.x}" cy="${local.y}" r="5" fill="#1d262b" stroke="#f2c14e" stroke-width="3"></circle>`);
       const offset = 8;
       let labelX = local.x;
       let labelY = local.y;
