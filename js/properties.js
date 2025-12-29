@@ -224,8 +224,8 @@ function renderModuleProperties(mod, renderModulesCallback, updateWiresCallback,
 
   const nameSizeField = makeField(
     "Name Size",
-    makeNumberInput(Number.isFinite(mod.nameSize) ? mod.nameSize : DEFAULT_MODULE.nameSize, { min: 10, max: 28, step: 1 }, (value) => {
-      mod.nameSize = clamp(Math.round(value), 10, 28);
+    makeNumberInput(Number.isFinite(mod.nameSize) ? mod.nameSize : DEFAULT_MODULE.nameSize, { min: 10, max: 50, step: 1 }, (value) => {
+      mod.nameSize = clamp(Math.round(value), 10, 50);
       renderModulesCallback();
     })
   );

@@ -331,6 +331,7 @@ function startModuleDrag(event, mod) {
     startY: event.clientY,
     originX: mod.x,
     originY: mod.y,
+    axisLock: null,
   };
   
   onModuleDragHandler = onModuleDrag;
@@ -351,10 +352,36 @@ function onModuleDrag(event) {
   if (!mod) {
     return;
   }
+  if (event.shiftKey) {
+    if (!state.drag.axisLock) {
+      const dx = (event.clientX - state.drag.startX) / state.view.scale;
+      const dy = (event.clientY - state.drag.startY) / state.view.scale;
+      state.drag.axisLock = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
+      state.drag.originX = mod.x;
+      state.drag.originY = mod.y;
+      state.drag.startX = event.clientX;
+      state.drag.startY = event.clientY;
+    }
+  } else if (state.drag.axisLock) {
+    state.drag.axisLock = null;
+    state.drag.originX = mod.x;
+    state.drag.originY = mod.y;
+    state.drag.startX = event.clientX;
+    state.drag.startY = event.clientY;
+  }
+
   const dx = (event.clientX - state.drag.startX) / state.view.scale;
   const dy = (event.clientY - state.drag.startY) / state.view.scale;
-  mod.x = Math.round(state.drag.originX + dx);
-  mod.y = Math.round(state.drag.originY + dy);
+  if (state.drag.axisLock === "x") {
+    mod.x = Math.round(state.drag.originX + dx);
+    mod.y = Math.round(state.drag.originY);
+  } else if (state.drag.axisLock === "y") {
+    mod.x = Math.round(state.drag.originX);
+    mod.y = Math.round(state.drag.originY + dy);
+  } else {
+    mod.x = Math.round(state.drag.originX + dx);
+    mod.y = Math.round(state.drag.originY + dy);
+  }
   const el = moduleElements.get(mod.id);
   if (el) {
     el.style.left = `${mod.x}px`;

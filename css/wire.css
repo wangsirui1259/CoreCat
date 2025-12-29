@@ -22,6 +22,7 @@ text.wire-label {
   text-anchor: middle;
   dominant-baseline: central;
   pointer-events: auto;
+  font-family: "Maple Mono Normal NF CN", "Maple Mono NF CN", "Consolas", "Courier New", monospace;
 }
 
 circle.wire-handle {
