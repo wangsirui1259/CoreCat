@@ -19,6 +19,74 @@ const MODULE_STROKE_COLORS = {
   mux: "rgba(150, 108, 203, 0.6)",
 };
 const DEFAULT_STROKE_COLOR = "rgba(31, 38, 43, 0.18)";
+const STORAGE_KEY = "corecat-diagram";
+const AUTO_SAVE_DELAY = 250;
+let autoSaveTimer = null;
+
+/**
+ * 保存至本地存储
+ */
+export function saveDiagramToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeState()));
+  } catch (err) {
+    // Ignore storage errors (e.g., private mode or quota exceeded).
+  }
+}
+
+/**
+ * 计划自动保存
+ */
+export function scheduleAutoSave(delay = AUTO_SAVE_DELAY) {
+  if (autoSaveTimer) {
+    clearTimeout(autoSaveTimer);
+  }
+  autoSaveTimer = setTimeout(() => {
+    autoSaveTimer = null;
+    saveDiagramToStorage();
+  }, delay);
+}
+
+/**
+ * 从本地存储加载
+ */
+export function loadDiagramFromStorage(callbacks) {
+  let raw;
+  try {
+    raw = localStorage.getItem(STORAGE_KEY);
+  } catch (err) {
+    return false;
+  }
+  if (!raw) {
+    return false;
+  }
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (err) {
+    return false;
+  }
+  if (!data || !Array.isArray(data.modules) || !Array.isArray(data.wires)) {
+    return false;
+  }
+  loadState(data, callbacks);
+  return true;
+}
+
+/**
+ * 清理本地存储
+ */
+export function clearDiagramStorage() {
+  if (autoSaveTimer) {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = null;
+  }
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (err) {
+    // Ignore storage errors.
+  }
+}
 
 function resolveModuleStrokeColor(mod) {
   if (typeof mod.strokeColor === "string" && mod.strokeColor.trim() !== "") {

@@ -6,6 +6,7 @@
 import { state, propertiesContent } from './state.js';
 import { MODULE_LIBRARY, DEFAULT_MODULE, DEFAULT_WIRE, MUX_DEFAULT, WIRE_STYLES, DEFAULT_CANVAS_BG } from './constants.js';
 import { uid, clamp, getModuleById, applyCanvasBackground, ensureMuxGeometry } from './utils.js';
+import { scheduleAutoSave } from './export.js';
 import { setWireDefaultBend, setWireSmartBends } from './wire.js';
 import { ensureMuxPorts } from './module.js';
 import { describePortRef } from './port.js';
@@ -119,6 +120,7 @@ function renderCanvasProperties(renderPropertiesCallback) {
       makeColorInput(state.canvasBackground || DEFAULT_CANVAS_BG, (value) => {
         state.canvasBackground = value;
         applyCanvasBackground();
+        scheduleAutoSave();
       })
     )
   );
@@ -129,6 +131,7 @@ function renderCanvasProperties(renderPropertiesCallback) {
     makeButton("Reset Background", "btn-accent", () => {
       state.canvasBackground = "";
       applyCanvasBackground();
+      scheduleAutoSave();
       if (renderPropertiesCallback) {
         renderPropertiesCallback();
       }
@@ -607,6 +610,14 @@ function renderWireProperties(wire, updateWiresCallback, renderPropertiesCallbac
  * 渲染属性面板
  */
 export function renderProperties(renderModulesCallback, updateWiresCallback, updateStatusCallback) {
+  const renderModules = () => {
+    renderModulesCallback();
+    scheduleAutoSave();
+  };
+  const updateWires = () => {
+    updateWiresCallback();
+    scheduleAutoSave();
+  };
   const renderPropertiesCallback = () => renderProperties(renderModulesCallback, updateWiresCallback, updateStatusCallback);
 
   propertiesContent.innerHTML = "";
@@ -623,7 +634,7 @@ export function renderProperties(renderModulesCallback, updateWiresCallback, upd
   if (state.selection.type === "module") {
     const mod = getModuleById(state.selection.id);
     if (mod) {
-      renderModuleProperties(mod, renderModulesCallback, updateWiresCallback, renderPropertiesCallback, updateStatusCallback);
+      renderModuleProperties(mod, renderModules, updateWires, renderPropertiesCallback, updateStatusCallback);
     }
     return;
   }
@@ -631,7 +642,7 @@ export function renderProperties(renderModulesCallback, updateWiresCallback, upd
   if (state.selection.type === "wire") {
     const wire = state.wires.find((item) => item.id === state.selection.id);
     if (wire) {
-      renderWireProperties(wire, updateWiresCallback, renderPropertiesCallback, updateStatusCallback, renderModulesCallback);
+      renderWireProperties(wire, updateWires, renderPropertiesCallback, updateStatusCallback, renderModules);
     }
   }
 }

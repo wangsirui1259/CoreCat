@@ -10,7 +10,7 @@ import { createModule, renderModules, ensureMuxPorts } from './module.js';
 import { createWire, updateWires, syncSvgSize } from './wire.js';
 import { renderProperties } from './properties.js';
 import { describePortRef } from './port.js';
-import { serializeState, loadState, exportPng, exportSvg, refreshIdCounter } from './export.js';
+import { serializeState, loadState, exportPng, exportSvg, refreshIdCounter, saveDiagramToStorage, scheduleAutoSave, loadDiagramFromStorage, clearDiagramStorage } from './export.js';
 
 // 事件处理器引用
 let onModuleDragHandler = null;
@@ -87,6 +87,7 @@ export function deleteSelected() {
   doUpdateWires();
   doRenderProperties();
   updateStatus();
+  scheduleAutoSave();
 }
 
 /**
@@ -177,6 +178,7 @@ function pasteClipboardModule() {
   };
   state.modules.push(moduleItem);
   select({ type: "module", id: moduleItem.id });
+  scheduleAutoSave();
 }
 
 function buildModuleFromJson(data, usedModuleIds) {
@@ -287,6 +289,7 @@ function addModulesFromJson(rawText) {
   doUpdateWires();
   doRenderProperties();
   updateStatus();
+  scheduleAutoSave();
   return true;
 }
 
@@ -305,6 +308,7 @@ function handlePortClick(event, mod, port) {
     state.connecting = null;
     doUpdateWires();
     updateStatus();
+    scheduleAutoSave();
     return;
   }
 
@@ -365,6 +369,7 @@ function endModuleDrag() {
   state.drag = null;
   window.removeEventListener("pointermove", onModuleDragHandler);
   window.removeEventListener("pointerup", endModuleDragHandler);
+  scheduleAutoSave();
 }
 
 /**
@@ -556,6 +561,7 @@ function endWireDrag() {
   window.removeEventListener("pointermove", onWireDragHandler);
   window.removeEventListener("pointerup", endWireDragHandler);
   doRenderProperties();
+  scheduleAutoSave();
 }
 
 /**
@@ -571,10 +577,11 @@ export function initPalette() {
       const type = item.dataset.type;
       const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.logic;
       const rect = canvas.getBoundingClientRect();
-      const x = rect.width / 2 - library.width / 2;
-      const y = rect.height / 2 - library.height / 2;
-      createModule(type, x, y, select);
-    });
+    const x = rect.width / 2 - library.width / 2;
+    const y = rect.height / 2 - library.height / 2;
+    createModule(type, x, y, select);
+    scheduleAutoSave();
+  });
   });
 
   canvas.addEventListener("dragover", (event) => {
@@ -590,6 +597,7 @@ export function initPalette() {
     const library = MODULE_LIBRARY[type] || MODULE_LIBRARY.logic;
     const point = getCanvasPoint(event);
     createModule(type, point.x - library.width / 2, point.y - library.height / 2, select);
+    scheduleAutoSave();
   });
 }
 
@@ -659,6 +667,7 @@ export function initButtons() {
           renderProperties: doRenderProperties,
           updateStatus: updateStatus,
         });
+        scheduleAutoSave();
         closeModal();
       } catch (err) {
         alert("Failed to parse JSON.");
@@ -673,21 +682,20 @@ export function initButtons() {
   });
 
   document.getElementById("btn-save").addEventListener("click", () => {
-    localStorage.setItem("corecat-diagram", JSON.stringify(serializeState()));
+    saveDiagramToStorage();
   });
 
   document.getElementById("btn-load").addEventListener("click", () => {
-    const data = localStorage.getItem("corecat-diagram");
-    if (!data) {
-      alert("No saved diagram found.");
-      return;
-    }
-    loadState(JSON.parse(data), {
+    const loaded = loadDiagramFromStorage({
       renderModules: doRenderModules,
       updateWires: doUpdateWires,
       renderProperties: doRenderProperties,
       updateStatus: updateStatus,
     });
+    if (!loaded) {
+      alert("No saved diagram found.");
+      return;
+    }
   });
 
   document.getElementById("btn-clear").addEventListener("click", () => {
@@ -702,6 +710,7 @@ export function initButtons() {
     doUpdateWires();
     doRenderProperties();
     updateStatus();
+    clearDiagramStorage();
   });
 
   const updateBgButton = () => {
@@ -841,9 +850,17 @@ export function initApp() {
   initWindowEvents();
   initStatusClick();
   applyViewTransform();
-  applyCanvasBackground();
-  doRenderModules();
-  doUpdateWires();
-  doRenderProperties();
-  updateStatus();
+  const loaded = loadDiagramFromStorage({
+    renderModules: doRenderModules,
+    updateWires: doUpdateWires,
+    renderProperties: doRenderProperties,
+    updateStatus: updateStatus,
+  });
+  if (!loaded) {
+    applyCanvasBackground();
+    doRenderModules();
+    doUpdateWires();
+    doRenderProperties();
+    updateStatus();
+  }
 }
