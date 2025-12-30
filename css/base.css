@@ -91,5 +91,5 @@ input[type="checkbox"] {
 textarea {
   min-height: 180px;
   resize: vertical;
-  font-family: "Consolas", "Courier New", monospace;
+  font-family: "Maple Mono Normal NF CN", "Maple Mono NF CN", "Consolas", "Courier New", monospace;
 }

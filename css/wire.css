@@ -8,7 +8,7 @@ path.wire {
 }
 
 path.wire.selected {
-  filter: drop-shadow(0 0 4px rgba(242, 193, 78, 0.5));
+  filter: drop-shadow(0 0 4px rgba(242, 193, 78, 0.75));
 }
 
 path.wire.preview {
@@ -33,9 +33,6 @@ circle.wire-handle {
 
 circle.wire-bend {
   pointer-events: none;
-  /* stroke: #1d262b00; */
-  /* stroke-width: 0; */
-  /* opacity: 0.8; */
   opacity: 0;
 }
 

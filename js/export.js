@@ -25,6 +25,9 @@ let autoSaveTimer = null;
 const PORT_LABEL_FONT_SIZE = 14;
 const PORT_LABEL_HALF_HEIGHT = PORT_LABEL_FONT_SIZE / 2;
 const PORT_COLOR_MIX_RATIO = 0.5;
+const BEND_MARKER_MIN_RADIUS = 2.5;
+const BEND_MARKER_OVERLAP_BOOST = 2.5;
+const BEND_OVERLAP_EPS = 0.5;
 
 /**
  * 保存至本地存储
@@ -191,6 +194,142 @@ function buildClockMarkerPath(x, y, width, height, pointDown) {
   return `M ${x + width / 2} ${y + 1} L ${x + width - 1} ${y + height - 1} L ${x + 1} ${y + height - 1} Z`;
 }
 
+function pointKey(point) {
+  return `${Math.round(point.x)}:${Math.round(point.y)}`;
+}
+
+function getWireBendPoints(wire, start, end) {
+  if (!start || !end) {
+    return [];
+  }
+
+  let points = [];
+
+  if (Array.isArray(wire.bends) && wire.bends.length > 0) {
+    points = wire.bends.map((bend) => ({ x: bend.x, y: bend.y }));
+  } else {
+    if (start.x === end.x || start.y === end.y) {
+      return [];
+    }
+    if (wire.route === "V") {
+      points = [
+        { x: start.x, y: wire.bend },
+        { x: end.x, y: wire.bend },
+      ];
+    } else {
+      points = [
+        { x: wire.bend, y: start.y },
+        { x: wire.bend, y: end.y },
+      ];
+    }
+  }
+
+  const startKey = pointKey(start);
+  const endKey = pointKey(end);
+  const seen = new Set();
+  const result = [];
+
+  for (const point of points) {
+    const key = pointKey(point);
+    if (key === startKey || key === endKey) {
+      continue;
+    }
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    result.push(point);
+  }
+
+  return result;
+}
+
+function getWirePathPoints(wire, start, end) {
+  if (!start || !end) {
+    return [];
+  }
+
+  if (Array.isArray(wire.bends) && wire.bends.length > 0) {
+    return [start, ...wire.bends, end];
+  }
+
+  if (wire.route === "V") {
+    return [
+      start,
+      { x: start.x, y: wire.bend },
+      { x: end.x, y: wire.bend },
+      end,
+    ];
+  }
+
+  return [
+    start,
+    { x: wire.bend, y: start.y },
+    { x: wire.bend, y: end.y },
+    end,
+  ];
+}
+
+function getWireSegments(points) {
+  const segments = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    if (p1.x === p2.x && p1.y === p2.y) {
+      continue;
+    }
+    segments.push({
+      x1: p1.x,
+      y1: p1.y,
+      x2: p2.x,
+      y2: p2.y,
+    });
+  }
+  return segments;
+}
+
+function getDirection(from, to) {
+  if (from.x === to.x) {
+    return to.y > from.y ? "down" : "up";
+  }
+  if (from.y === to.y) {
+    return to.x > from.x ? "right" : "left";
+  }
+  return null;
+}
+
+function getOutgoingDirection(points, index) {
+  const curr = points[index];
+  for (let i = index + 1; i < points.length; i++) {
+    const next = points[i];
+    if (next.x === curr.x && next.y === curr.y) {
+      continue;
+    }
+    return getDirection(curr, next);
+  }
+  return null;
+}
+
+function isPointOnSegment(point, segment) {
+  if (segment.x1 === segment.x2) {
+    if (Math.abs(point.x - segment.x1) > BEND_OVERLAP_EPS) {
+      return false;
+    }
+    const minY = Math.min(segment.y1, segment.y2) - BEND_OVERLAP_EPS;
+    const maxY = Math.max(segment.y1, segment.y2) + BEND_OVERLAP_EPS;
+    return point.y >= minY && point.y <= maxY;
+  }
+  if (segment.y1 === segment.y2) {
+    if (Math.abs(point.y - segment.y1) > BEND_OVERLAP_EPS) {
+      return false;
+    }
+    const minX = Math.min(segment.x1, segment.x2) - BEND_OVERLAP_EPS;
+    const maxX = Math.max(segment.x1, segment.x2) + BEND_OVERLAP_EPS;
+    return point.x >= minX && point.x <= maxX;
+  }
+  return false;
+}
+
 /**
  * 计算图表边界
  */
@@ -268,7 +407,9 @@ export function buildExportSvg(options) {
   parts.push(
     "<style>",
     ".wire{fill:none;stroke-linecap:round;stroke-linejoin:round;}",
-    ".module-name{font-family:MiSans VF,Noto Sans SC,Trebuchet MS,Lucida Sans Unicode,Lucida Grande,sans-serif;font-size:16px;font-weight:700;fill:#1d262b;}",
+    ".wire-bend{pointer-events:none;opacity:0;}",
+    ".wire-bend.overlap{stroke-width:2;opacity:1;}",
+    ".module-name{font-family:MiSans VF,Noto Sans SC,Trebuchet MS,Lucida Sans Unicode,Lucida Grande,sans-serif;font-weight:700;fill:#1d262b;}",
     ".module-type{font-family:MiSans VF,Noto Sans SC,Trebuchet MS,Lucida Sans Unicode,Lucida Grande,sans-serif;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;fill:#6b6f6f;}",
     ".port-label{font-family:Maple Mono Normal NF CN,Maple Mono NF CN,Consolas,Courier New,monospace;font-size:14px;fill:#1d262b;}",
     ".wire-label{font-family:Maple Mono Normal NF CN,Maple Mono NF CN,Consolas,Courier New,monospace;font-size:11px;}",
@@ -279,17 +420,110 @@ export function buildExportSvg(options) {
   }
   parts.push(`<g transform="translate(${offsetX} ${offsetY}) scale(${scale})">`);
 
+  const wireRenderItems = [];
+  const bendPointMap = new Map();
+  const renderItemMap = new Map();
+
   state.wires.forEach((wire) => {
     const start = getPortPositionByRef(wire.from);
     const end = getPortPositionByRef(wire.to);
     if (!start || !end) {
       return;
     }
+    const bendPoints = getWireBendPoints(wire, start, end);
+    bendPoints.forEach((point) => {
+      const key = pointKey(point);
+      if (!bendPointMap.has(key)) {
+        bendPointMap.set(key, new Set());
+      }
+      bendPointMap.get(key).add(wire.id);
+    });
+    const pathPoints = getWirePathPoints(wire, start, end);
+    const segments = getWireSegments(pathPoints);
+    const bendDirections = new Map();
+    for (let i = 1; i < pathPoints.length - 1; i++) {
+      const point = pathPoints[i];
+      const dir = getOutgoingDirection(pathPoints, i);
+      if (!dir) {
+        continue;
+      }
+      const key = pointKey(point);
+      if (!bendDirections.has(key)) {
+        bendDirections.set(key, new Set());
+      }
+      bendDirections.get(key).add(dir);
+    }
+    const item = { wire, start, end, bendPoints, segments, bendDirections };
+    wireRenderItems.push(item);
+    renderItemMap.set(wire.id, item);
+  });
+
+  const overlapKeys = new Set();
+  bendPointMap.forEach((wireIds, key) => {
+    if (wireIds.size <= 1) {
+      return;
+    }
+    const directions = new Set();
+    wireIds.forEach((wireId) => {
+      const item = renderItemMap.get(wireId);
+      if (!item) {
+        return;
+      }
+      const dirSet = item.bendDirections.get(key);
+      if (!dirSet) {
+        return;
+      }
+      dirSet.forEach((dir) => directions.add(dir));
+    });
+    if (directions.size > 1) {
+      overlapKeys.add(key);
+    }
+  });
+
+  wireRenderItems.forEach((item) => {
+    item.bendPoints.forEach((point) => {
+      const key = pointKey(point);
+      if (overlapKeys.has(key)) {
+        return;
+      }
+      const bendWireIds = bendPointMap.get(key);
+      for (const other of wireRenderItems) {
+        if (other.wire.id === item.wire.id) {
+          continue;
+        }
+        if (bendWireIds && bendWireIds.has(other.wire.id)) {
+          continue;
+        }
+        let hit = false;
+        for (const segment of other.segments) {
+          if (isPointOnSegment(point, segment)) {
+            overlapKeys.add(key);
+            hit = true;
+            break;
+          }
+        }
+        if (hit) {
+          break;
+        }
+      }
+    });
+  });
+
+  wireRenderItems.forEach(({ wire, start, end, bendPoints }) => {
     const color = typeof wire.color === "string" && wire.color ? wire.color : DEFAULT_WIRE.color;
     const widthValue = Number.isFinite(wire.width) ? wire.width : DEFAULT_WIRE.width;
     const dash = WIRE_STYLES[wire.style] || "";
     const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
     parts.push(`<path class="wire" d="${buildWirePath(wire, start, end)}" stroke="${color}" stroke-width="${widthValue}"${dashAttr}></path>`);
+    if (bendPoints.length > 0) {
+      const baseRadius = Math.max(BEND_MARKER_MIN_RADIUS, widthValue * 0.7);
+      bendPoints.forEach((point) => {
+        const key = pointKey(point);
+        const isOverlap = overlapKeys.has(key);
+        const radius = isOverlap ? baseRadius + BEND_MARKER_OVERLAP_BOOST : baseRadius;
+        parts.push(`<circle class="wire-bend${isOverlap ? " overlap" : ""}" cx="${point.x}" cy="${point.y}" r="${radius}" fill="${color}"></circle>`);
+      });
+    }
     if (wire.label) {
       const labelPos = wireLabelPosition(wire, start, end);
       const labelAnchor = labelPos.anchor || "middle";
@@ -334,12 +568,13 @@ export function buildExportSvg(options) {
     const nameSize = Number.isFinite(mod.nameSize) ? mod.nameSize : DEFAULT_MODULE.nameSize;
     const centerX = mod.width / 2;
     const centerY = mod.height / 2;
+    const titleOffset = mod.type === "extender" ? nameSize * 0.5 : 0;
     if (mod.showType) {
       const typeSize = 11;
       const gap = 2;
       const totalHeight = nameSize + typeSize + gap;
       const top = centerY - totalHeight / 2;
-      const nameY = top + nameSize / 2;
+      const nameY = top + nameSize / 2 + titleOffset;
       const typeY = top + nameSize + gap + typeSize / 2;
       parts.push(
         `<text class="module-name" x="${centerX}" y="${nameY}" text-anchor="middle" dominant-baseline="middle" font-size="${nameSize}">${escapeXml(
@@ -354,7 +589,7 @@ export function buildExportSvg(options) {
       );
     } else {
       parts.push(
-        `<text class="module-name" x="${centerX}" y="${centerY}" text-anchor="middle" dominant-baseline="middle" font-size="${nameSize}">${escapeXml(
+        `<text class="module-name" x="${centerX}" y="${centerY + titleOffset}" text-anchor="middle" dominant-baseline="middle" font-size="${nameSize}">${escapeXml(
           mod.name
         )}</text>`
       );

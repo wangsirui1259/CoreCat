@@ -1,8 +1,10 @@
 # CoreCat - 轻松绘制模块图
 
 <div align="center">
-  <img height="160px" src="svg/CoreCat_logo.png" style="max-width: 100%; height: auto; max-height: 160px; margin: 0 0 20px">
+  <img height="160px" src="svg/CoreCat_logo.png" style="max-width: 100%; height: auto; max-height: 160px;">
 </div>
+
+</br>
 
 <p align="center">
   <a href="https://github.com/mihomo-party-org/clash-party/releases">
