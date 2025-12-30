@@ -290,17 +290,17 @@ export function buildExportSvg(options) {
     const dash = WIRE_STYLES[wire.style] || "";
     const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
     parts.push(`<path class="wire" d="${buildWirePath(wire, start, end)}" stroke="${color}" stroke-width="${widthValue}"${dashAttr}></path>`);
-      if (wire.label) {
-        const labelPos = wireLabelPosition(wire, start, end);
-        const labelAnchor = labelPos.anchor || "middle";
-        const labelBaseline = labelPos.baseline || "central";
-        const labelTransform = labelPos.angle ? ` transform="rotate(${labelPos.angle} ${labelPos.x} ${labelPos.y})"` : "";
-        parts.push(
-          `<text class="wire-label" x="${labelPos.x}" y="${labelPos.y}" text-anchor="${labelAnchor}" dominant-baseline="${labelBaseline}" fill="${color}"${labelTransform}>${escapeXml(
+    if (wire.label) {
+      const labelPos = wireLabelPosition(wire, start, end);
+      const labelAnchor = labelPos.anchor || "middle";
+      const labelBaseline = labelPos.baseline || "central";
+      const labelTransform = labelPos.angle ? ` transform="rotate(${labelPos.angle} ${labelPos.x} ${labelPos.y})"` : "";
+      parts.push(
+        `<text class="wire-label" x="${labelPos.x}" y="${labelPos.y}" text-anchor="${labelAnchor}" dominant-baseline="${labelBaseline}" fill="${color}"${labelTransform}>${escapeXml(
           wire.label
         )}</text>`
-        );
-      }
+      );
+    }
   });
 
   state.modules.forEach((mod, index) => {
@@ -498,6 +498,7 @@ export function serializeState() {
       from: wire.from,
       to: wire.to,
       label: wire.label,
+      labelAt: wire.labelAt,
       route: wire.route,
       bend: wire.bend,
       bends: wire.bends,
@@ -561,8 +562,10 @@ export function loadState(data, callbacks) {
     const color = typeof wire.color === "string" && wire.color ? wire.color : DEFAULT_WIRE.color;
     const style = WIRE_STYLES[wire.style] !== undefined ? wire.style : DEFAULT_WIRE.style;
     const bends = Array.isArray(wire.bends) ? wire.bends : null;
+    const labelAt = wire.labelAt === "start" ? "start" : "end";
     return {
       ...wire,
+      labelAt,
       color,
       width,
       style,

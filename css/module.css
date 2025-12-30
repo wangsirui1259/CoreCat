@@ -33,12 +33,14 @@
   align-items: center;
   justify-content: center;
   text-align: center;
+  user-select: none;
 }
 
 .module-title {
   font-size: 16px;
   font-weight: 700;
   text-align: center;
+  user-select: none;
 }
 
 .module-type {
@@ -46,6 +48,7 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
+  user-select: none;
 }
 
 .module.alu {
@@ -76,6 +79,10 @@
 
 .module.extender.selected {
   filter: drop-shadow(0 8px 16px rgba(17, 24, 28, 0.18)) drop-shadow(0 0 0 2px rgba(242, 193, 78, 0.85));
+}
+
+.module.extender .module-title {
+  transform: translateY(20%);
 }
 
 .module.mux {

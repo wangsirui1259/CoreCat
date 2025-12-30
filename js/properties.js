@@ -447,6 +447,24 @@ function renderWireProperties(wire, updateWiresCallback, renderPropertiesCallbac
   );
   propertiesContent.appendChild(labelField);
 
+  const labelAtValue = wire.labelAt === "start" ? "start" : "end";
+  wire.labelAt = labelAtValue;
+  const labelPositionField = makeField(
+    "Label Position",
+    makeSelect(
+      [
+        { value: "end", label: "End port" },
+        { value: "start", label: "Start port" },
+      ],
+      labelAtValue,
+      (value) => {
+        wire.labelAt = value;
+        updateWiresCallback();
+      }
+    )
+  );
+  propertiesContent.appendChild(labelPositionField);
+
   const colorField = makeField(
     "Color",
     makeColorInput(wire.color || DEFAULT_WIRE.color, (value) => {

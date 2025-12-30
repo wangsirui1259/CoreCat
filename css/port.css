@@ -29,6 +29,7 @@
   color: #1d262b;
   pointer-events: none;
   white-space: nowrap;
+  user-select: none;
 }
 
 /* 左侧端口：标签在端口右边，向右偏移 */

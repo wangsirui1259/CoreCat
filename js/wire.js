@@ -243,6 +243,7 @@ export function createWire(from, to, selectCallback) {
     from,
     to,
     label: "",
+    labelAt: "end",
     route: "H",
     bend: 0,
     bends: null,
@@ -345,6 +346,16 @@ function getWireEndSegmentStart(wire, start, end) {
   return { x: wire.bend, y: end.y };
 }
 
+function getWireStartSegmentEnd(wire, start, end) {
+  if (Array.isArray(wire.bends) && wire.bends.length > 0) {
+    return wire.bends[0];
+  }
+  if (wire.route === "V") {
+    return { x: start.x, y: wire.bend };
+  }
+  return { x: wire.bend, y: start.y };
+}
+
 /**
  * 获取连线标签位置
  */
@@ -353,27 +364,35 @@ export function wireLabelPosition(wire, start, end) {
     return { x: 0, y: 0, anchor: "middle", baseline: "central", angle: 0 };
   }
 
-  const segmentStart = getWireEndSegmentStart(wire, start, end);
-  const dx = end.x - segmentStart.x;
-  const dy = end.y - segmentStart.y;
+  const baseWidth = Number.isFinite(wire.width) ? wire.width : DEFAULT_WIRE.width;
+  const extraOffset = Math.max(0, (baseWidth - DEFAULT_WIRE.width) / 2);
+  const labelOffset = LABEL_OFFSET + extraOffset;
+  const labelAt = wire && wire.labelAt === "start" ? "start" : "end";
+  const isStart = labelAt === "start";
+  const segmentStart = isStart ? start : getWireEndSegmentStart(wire, start, end);
+  const segmentEnd = isStart ? getWireStartSegmentEnd(wire, start, end) : end;
+  const point = isStart ? start : end;
+  const dx = segmentEnd.x - segmentStart.x;
+  const dy = segmentEnd.y - segmentStart.y;
   const isHorizontal = dy === 0;
+  const dir = (value) => (value === 0 ? 1 : Math.sign(value));
 
   if (isHorizontal) {
-    const dir = dx === 0 ? 1 : Math.sign(dx);
+    const axisDir = dir(dx);
     return {
-      x: end.x - dir * LABEL_ALONG_OFFSET,
-      y: end.y - LABEL_OFFSET,
-      anchor: dir > 0 ? "end" : "start",
+      x: point.x + (isStart ? axisDir : -axisDir) * LABEL_ALONG_OFFSET,
+      y: point.y - labelOffset,
+      anchor: axisDir > 0 ? (isStart ? "start" : "end") : (isStart ? "end" : "start"),
       baseline: "central",
       angle: 0,
     };
   }
 
-  const dir = dy === 0 ? 1 : Math.sign(dy);
+  const axisDir = dir(dy);
   return {
-    x: end.x + LABEL_OFFSET,
-    y: end.y - dir * LABEL_ALONG_OFFSET,
-    anchor: dir > 0 ? "end" : "start",
+    x: point.x + labelOffset,
+    y: point.y + (isStart ? axisDir : -axisDir) * LABEL_ALONG_OFFSET,
+    anchor: axisDir > 0 ? (isStart ? "start" : "end") : (isStart ? "end" : "start"),
     baseline: "central",
     angle: 90,
   };
