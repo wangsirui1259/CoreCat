@@ -30,3 +30,16 @@ circle.wire-handle {
   stroke-width: 2;
   cursor: ew-resize;
 }
+
+circle.wire-bend {
+  pointer-events: none;
+  /* stroke: #1d262b00; */
+  /* stroke-width: 0; */
+  /* opacity: 0.8; */
+  opacity: 0;
+}
+
+circle.wire-bend.overlap {
+  stroke-width: 2;
+  opacity: 1;
+}
