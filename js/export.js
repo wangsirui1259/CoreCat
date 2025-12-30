@@ -292,8 +292,11 @@ export function buildExportSvg(options) {
     parts.push(`<path class="wire" d="${buildWirePath(wire, start, end)}" stroke="${color}" stroke-width="${widthValue}"${dashAttr}></path>`);
       if (wire.label) {
         const labelPos = wireLabelPosition(wire, start, end);
+        const labelAnchor = labelPos.anchor || "middle";
+        const labelBaseline = labelPos.baseline || "central";
+        const labelTransform = labelPos.angle ? ` transform="rotate(${labelPos.angle} ${labelPos.x} ${labelPos.y})"` : "";
         parts.push(
-          `<text class="wire-label" x="${labelPos.x}" y="${labelPos.y - 10}" text-anchor="middle" dominant-baseline="central" fill="${color}">${escapeXml(
+          `<text class="wire-label" x="${labelPos.x}" y="${labelPos.y}" text-anchor="${labelAnchor}" dominant-baseline="${labelBaseline}" fill="${color}"${labelTransform}>${escapeXml(
           wire.label
         )}</text>`
         );

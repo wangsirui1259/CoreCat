@@ -8,6 +8,9 @@ import { DEFAULT_WIRE, WIRE_STYLES, WIRE_MARGIN } from './constants.js';
 import { uid, svgEl, getModuleById } from './utils.js';
 import { getPortPositionByRef, describePortRef } from './port.js';
 
+const LABEL_OFFSET = 10;
+const LABEL_ALONG_OFFSET = 10;
+
 /**
  * 设置连线默认弯折点
  */
@@ -332,11 +335,48 @@ export function wireHandlePosition(wire, start, end) {
   return { x: wire.bend, y: (start.y + end.y) / 2 };
 }
 
+function getWireEndSegmentStart(wire, start, end) {
+  if (Array.isArray(wire.bends) && wire.bends.length > 0) {
+    return wire.bends[wire.bends.length - 1];
+  }
+  if (wire.route === "V") {
+    return { x: end.x, y: wire.bend };
+  }
+  return { x: wire.bend, y: end.y };
+}
+
 /**
  * 获取连线标签位置
  */
 export function wireLabelPosition(wire, start, end) {
-  return wireHandlePosition(wire, start, end);
+  if (!start || !end) {
+    return { x: 0, y: 0, anchor: "middle", baseline: "central", angle: 0 };
+  }
+
+  const segmentStart = getWireEndSegmentStart(wire, start, end);
+  const dx = end.x - segmentStart.x;
+  const dy = end.y - segmentStart.y;
+  const isHorizontal = dy === 0;
+
+  if (isHorizontal) {
+    const dir = dx === 0 ? 1 : Math.sign(dx);
+    return {
+      x: end.x - dir * LABEL_ALONG_OFFSET,
+      y: end.y - LABEL_OFFSET,
+      anchor: dir > 0 ? "end" : "start",
+      baseline: "central",
+      angle: 0,
+    };
+  }
+
+  const dir = dy === 0 ? 1 : Math.sign(dy);
+  return {
+    x: end.x + LABEL_OFFSET,
+    y: end.y - dir * LABEL_ALONG_OFFSET,
+    anchor: dir > 0 ? "end" : "start",
+    baseline: "central",
+    angle: 90,
+  };
 }
 
 /**
@@ -386,12 +426,18 @@ export function updateWires(selectCallback, startWireDragCallback) {
 
     if (wire.label) {
       const labelPos = wireLabelPosition(wire, start, end);
-      const label = svgEl("text", {
+      const labelAttrs = {
         x: labelPos.x,
-        y: labelPos.y - 10,
+        y: labelPos.y,
         class: "wire-label wire-hit",
         fill: strokeColor,
-      });
+        "text-anchor": labelPos.anchor || "middle",
+        "dominant-baseline": labelPos.baseline || "central",
+      };
+      if (labelPos.angle) {
+        labelAttrs.transform = `rotate(${labelPos.angle} ${labelPos.x} ${labelPos.y})`;
+      }
+      const label = svgEl("text", labelAttrs);
       label.textContent = wire.label;
       label.addEventListener("pointerdown", (event) => {
         event.stopPropagation();

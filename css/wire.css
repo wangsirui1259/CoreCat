@@ -19,8 +19,6 @@ path.wire.preview {
 
 text.wire-label {
   font-size: 11px;
-  text-anchor: middle;
-  dominant-baseline: central;
   pointer-events: auto;
   font-family: "Maple Mono Normal NF CN", "Maple Mono NF CN", "Consolas", "Courier New", monospace;
 }

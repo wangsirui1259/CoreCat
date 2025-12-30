@@ -19,11 +19,12 @@ export const MODULE_LIBRARY = {
   },
   reg: {
     label: "Reg",
-    width: 160,
-    height: 100,
+    width: 120,
+    height: 160,
     ports: [
-      { name: "D", side: "left", offset: 0.5 },
-      { name: "Q", side: "right", offset: 0.5 },
+      { name: "addr", side: "left", offset: 0.3 },
+      { name: "din", side: "left", offset: 0.7 },
+      { name: "spo", side: "right", offset: 0.5 },
       { name: "CLK", side: "top", offset: 0.5, clock: true },
     ],
   },
