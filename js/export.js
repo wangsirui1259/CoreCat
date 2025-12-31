@@ -5,7 +5,7 @@
 
 import { state, canvas } from './state.js';
 import { MODULE_LIBRARY, DEFAULT_MODULE, DEFAULT_WIRE, WIRE_STYLES, DEFAULT_CANVAS_BG, MUX_DEFAULT } from './constants.js';
-import { escapeXml, getMuxCut, getExtenderOffset, getCanvasBackgroundColor, applyCanvasBackground, ensureMuxGeometry, getModuleGradientFill } from './utils.js';
+import { escapeXml, getMuxCut, getExtenderOffset, getCanvasBackgroundColor, applyCanvasBackground, ensureMuxGeometry, getModuleGradientFill, parseRgb } from './utils.js';
 import { getPortLocalPosition, getPortPositionByRef } from './port.js';
 import {
   buildWirePath,
@@ -115,42 +115,8 @@ function makeGradientId(mod, index) {
   return `moduleGradient-${raw.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 }
 
-function parseRgb(color) {
-  if (typeof color !== "string") {
-    return null;
-  }
-  const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-  if (rgbaMatch) {
-    const r = Number.parseInt(rgbaMatch[1], 10);
-    const g = Number.parseInt(rgbaMatch[2], 10);
-    const b = Number.parseInt(rgbaMatch[3], 10);
-    const a = rgbaMatch[4] !== undefined ? Number.parseFloat(rgbaMatch[4]) : 1;
-    if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b) || Number.isNaN(a)) {
-      return null;
-    }
-    return { r, g, b, a };
-  }
-  if (color.startsWith("#")) {
-    let hex = color.slice(1).trim();
-    if (hex.length === 3) {
-      hex = hex.split("").map((ch) => ch + ch).join("");
-    }
-    if (hex.length === 6 || hex.length === 8) {
-      const r = Number.parseInt(hex.slice(0, 2), 16);
-      const g = Number.parseInt(hex.slice(2, 4), 16);
-      const b = Number.parseInt(hex.slice(4, 6), 16);
-      const a = hex.length === 8 ? Number.parseInt(hex.slice(6, 8), 16) / 255 : 1;
-      if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b) || Number.isNaN(a)) {
-        return null;
-      }
-      return { r, g, b, a };
-    }
-  }
-  return null;
-}
-
 function mixWithBlack(color, ratio = PORT_COLOR_MIX_RATIO) {
-  const rgb = parseRgb(color);
+  const rgb = parseRgb(color, true); // Use shared parseRgb function with alpha value included
   if (!rgb) {
     return "";
   }
