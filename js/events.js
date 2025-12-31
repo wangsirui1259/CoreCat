@@ -24,6 +24,7 @@ const MODULE_CLIPBOARD_OFFSET = 24;
 const MODULE_DRAG_MIME = "application/x-corecat-module";
 let moduleClipboard = null;
 
+
 /**
  * 应用视图变换
  */
