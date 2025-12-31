@@ -170,11 +170,11 @@ function createModuleElement(mod) {
     el.style.backgroundSize = '100% 100%';
   }
   
-  // Set height after potential geometry adjustments (for mux modules)
+  // Set height after ensureModuleDefaults and ensureMuxGeometry which may modify mod.height
   el.style.height = `${mod.height}px`;
   applyModuleAppearance(el, mod);
 
-  // 创建模块头部
+  // Create module header
   const header = document.createElement("div");
   header.className = "module-header";
   const title = document.createElement("div");

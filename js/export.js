@@ -116,7 +116,7 @@ function makeGradientId(mod, index) {
 }
 
 function mixWithBlack(color, ratio = PORT_COLOR_MIX_RATIO) {
-  const rgb = parseRgb(color, true); // 使用共享的parseRgb函数，包含alpha值
+  const rgb = parseRgb(color, true); // Use shared parseRgb function with alpha value included
   if (!rgb) {
     return "";
   }
