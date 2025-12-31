@@ -233,6 +233,12 @@ function createModuleElement(mod) {
  * 使用DocumentFragment批量操作DOM以提高性能
  */
 export function renderModules(selectCallback, startModuleDragCallback, handlePortClickCallback) {
+  // 移除旧的事件监听器（如果存在）
+  if (moduleLayerDelegatedHandler) {
+    moduleLayer.removeEventListener("pointerdown", moduleLayerDelegatedHandler);
+    moduleLayerDelegatedHandler = null;
+  }
+
   moduleLayer.innerHTML = "";
   moduleElements.clear();
 
@@ -247,12 +253,6 @@ export function renderModules(selectCallback, startModuleDragCallback, handlePor
 
   // 一次性添加所有模块到DOM
   moduleLayer.appendChild(fragment);
-
-  // 使用事件委托处理模块和端口的点击事件
-  // 移除旧的事件监听器（如果存在）
-  if (moduleLayerDelegatedHandler) {
-    moduleLayer.removeEventListener("pointerdown", moduleLayerDelegatedHandler);
-  }
 
   // 创建新的事件委托处理器
   moduleLayerDelegatedHandler = (event) => {

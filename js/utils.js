@@ -15,31 +15,32 @@ export function clamp(value, min, max) {
 
 /**
  * 节流函数 - 限制函数调用频率
- * 使用requestAnimationFrame进行平滑的节流处理
+ * 使用时间间隔进行节流，确保函数在指定时间内最多执行一次
  * @param {Function} fn - 要节流的函数
  * @param {number} delay - 节流延迟（毫秒）
  * @returns {Function} 节流后的函数
  */
 export function throttle(fn, delay) {
   let lastCall = 0;
-  let scheduledCall = null;
+  let timeoutId = null;
+  
   return function(...args) {
     const now = Date.now();
     const remaining = delay - (now - lastCall);
     
     if (remaining <= 0) {
-      if (scheduledCall) {
-        cancelAnimationFrame(scheduledCall);
-        scheduledCall = null;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
       }
       lastCall = now;
       fn.apply(this, args);
-    } else if (!scheduledCall) {
-      scheduledCall = requestAnimationFrame(() => {
+    } else if (!timeoutId) {
+      timeoutId = setTimeout(() => {
         lastCall = Date.now();
-        scheduledCall = null;
+        timeoutId = null;
         fn.apply(this, args);
-      });
+      }, remaining);
     }
   };
 }
