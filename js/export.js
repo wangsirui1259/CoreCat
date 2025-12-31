@@ -5,9 +5,21 @@
 
 import { state, canvas } from './state.js';
 import { MODULE_LIBRARY, DEFAULT_MODULE, DEFAULT_WIRE, WIRE_STYLES, DEFAULT_CANVAS_BG, MUX_DEFAULT } from './constants.js';
-import { escapeXml, getMuxCut, getExtenderOffset, getCanvasBackgroundColor, applyCanvasBackground, ensureMuxGeometry, getModuleGradientFill } from './utils.js';
+import { escapeXml, getMuxCut, getExtenderOffset, getCanvasBackgroundColor, applyCanvasBackground, ensureMuxGeometry, getModuleGradientFill, parseRgb } from './utils.js';
 import { getPortLocalPosition, getPortPositionByRef } from './port.js';
-import { buildWirePath, wireLabelPosition } from './wire.js';
+import {
+  buildWirePath,
+  wireLabelPosition,
+  pointKey,
+  getWireBendPoints,
+  getWirePathPoints,
+  getWireSegments,
+  getOutgoingDirection,
+  isPointOnSegment,
+  BEND_MARKER_MIN_RADIUS,
+  BEND_MARKER_OVERLAP_BOOST,
+  BEND_OVERLAP_EPS
+} from './wire.js';
 import { ensureMuxPorts } from './module.js';
 
 const MODULE_STROKE_COLORS = {
@@ -25,9 +37,6 @@ let autoSaveTimer = null;
 const PORT_LABEL_FONT_SIZE = 14;
 const PORT_LABEL_HALF_HEIGHT = PORT_LABEL_FONT_SIZE / 2;
 const PORT_COLOR_MIX_RATIO = 0.5;
-const BEND_MARKER_MIN_RADIUS = 2.5;
-const BEND_MARKER_OVERLAP_BOOST = 2.5;
-const BEND_OVERLAP_EPS = 0.5;
 
 /**
  * 保存至本地存储
@@ -106,42 +115,8 @@ function makeGradientId(mod, index) {
   return `moduleGradient-${raw.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 }
 
-function parseRgb(color) {
-  if (typeof color !== "string") {
-    return null;
-  }
-  const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-  if (rgbaMatch) {
-    const r = Number.parseInt(rgbaMatch[1], 10);
-    const g = Number.parseInt(rgbaMatch[2], 10);
-    const b = Number.parseInt(rgbaMatch[3], 10);
-    const a = rgbaMatch[4] !== undefined ? Number.parseFloat(rgbaMatch[4]) : 1;
-    if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b) || Number.isNaN(a)) {
-      return null;
-    }
-    return { r, g, b, a };
-  }
-  if (color.startsWith("#")) {
-    let hex = color.slice(1).trim();
-    if (hex.length === 3) {
-      hex = hex.split("").map((ch) => ch + ch).join("");
-    }
-    if (hex.length === 6 || hex.length === 8) {
-      const r = Number.parseInt(hex.slice(0, 2), 16);
-      const g = Number.parseInt(hex.slice(2, 4), 16);
-      const b = Number.parseInt(hex.slice(4, 6), 16);
-      const a = hex.length === 8 ? Number.parseInt(hex.slice(6, 8), 16) / 255 : 1;
-      if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b) || Number.isNaN(a)) {
-        return null;
-      }
-      return { r, g, b, a };
-    }
-  }
-  return null;
-}
-
 function mixWithBlack(color, ratio = PORT_COLOR_MIX_RATIO) {
-  const rgb = parseRgb(color);
+  const rgb = parseRgb(color, true); // Use shared parseRgb function with alpha value included
   if (!rgb) {
     return "";
   }
@@ -192,142 +167,6 @@ function buildClockMarkerPath(x, y, width, height, pointDown) {
     return `M ${x + 1} ${y + 1} L ${x + width - 1} ${y + 1} L ${x + width / 2} ${y + height - 1} Z`;
   }
   return `M ${x + width / 2} ${y + 1} L ${x + width - 1} ${y + height - 1} L ${x + 1} ${y + height - 1} Z`;
-}
-
-function pointKey(point) {
-  return `${Math.round(point.x)}:${Math.round(point.y)}`;
-}
-
-function getWireBendPoints(wire, start, end) {
-  if (!start || !end) {
-    return [];
-  }
-
-  let points = [];
-
-  if (Array.isArray(wire.bends) && wire.bends.length > 0) {
-    points = wire.bends.map((bend) => ({ x: bend.x, y: bend.y }));
-  } else {
-    if (start.x === end.x || start.y === end.y) {
-      return [];
-    }
-    if (wire.route === "V") {
-      points = [
-        { x: start.x, y: wire.bend },
-        { x: end.x, y: wire.bend },
-      ];
-    } else {
-      points = [
-        { x: wire.bend, y: start.y },
-        { x: wire.bend, y: end.y },
-      ];
-    }
-  }
-
-  const startKey = pointKey(start);
-  const endKey = pointKey(end);
-  const seen = new Set();
-  const result = [];
-
-  for (const point of points) {
-    const key = pointKey(point);
-    if (key === startKey || key === endKey) {
-      continue;
-    }
-    if (seen.has(key)) {
-      continue;
-    }
-    seen.add(key);
-    result.push(point);
-  }
-
-  return result;
-}
-
-function getWirePathPoints(wire, start, end) {
-  if (!start || !end) {
-    return [];
-  }
-
-  if (Array.isArray(wire.bends) && wire.bends.length > 0) {
-    return [start, ...wire.bends, end];
-  }
-
-  if (wire.route === "V") {
-    return [
-      start,
-      { x: start.x, y: wire.bend },
-      { x: end.x, y: wire.bend },
-      end,
-    ];
-  }
-
-  return [
-    start,
-    { x: wire.bend, y: start.y },
-    { x: wire.bend, y: end.y },
-    end,
-  ];
-}
-
-function getWireSegments(points) {
-  const segments = [];
-  for (let i = 0; i < points.length - 1; i++) {
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    if (p1.x === p2.x && p1.y === p2.y) {
-      continue;
-    }
-    segments.push({
-      x1: p1.x,
-      y1: p1.y,
-      x2: p2.x,
-      y2: p2.y,
-    });
-  }
-  return segments;
-}
-
-function getDirection(from, to) {
-  if (from.x === to.x) {
-    return to.y > from.y ? "down" : "up";
-  }
-  if (from.y === to.y) {
-    return to.x > from.x ? "right" : "left";
-  }
-  return null;
-}
-
-function getOutgoingDirection(points, index) {
-  const curr = points[index];
-  for (let i = index + 1; i < points.length; i++) {
-    const next = points[i];
-    if (next.x === curr.x && next.y === curr.y) {
-      continue;
-    }
-    return getDirection(curr, next);
-  }
-  return null;
-}
-
-function isPointOnSegment(point, segment) {
-  if (segment.x1 === segment.x2) {
-    if (Math.abs(point.x - segment.x1) > BEND_OVERLAP_EPS) {
-      return false;
-    }
-    const minY = Math.min(segment.y1, segment.y2) - BEND_OVERLAP_EPS;
-    const maxY = Math.max(segment.y1, segment.y2) + BEND_OVERLAP_EPS;
-    return point.y >= minY && point.y <= maxY;
-  }
-  if (segment.y1 === segment.y2) {
-    if (Math.abs(point.y - segment.y1) > BEND_OVERLAP_EPS) {
-      return false;
-    }
-    const minX = Math.min(segment.x1, segment.x2) - BEND_OVERLAP_EPS;
-    const maxX = Math.max(segment.x1, segment.x2) + BEND_OVERLAP_EPS;
-    return point.x >= minX && point.x <= maxX;
-  }
-  return false;
 }
 
 /**

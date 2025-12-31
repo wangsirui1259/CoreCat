@@ -10,15 +10,15 @@ import { getPortPositionByRef, describePortRef } from './port.js';
 
 const LABEL_OFFSET = 10;
 const LABEL_ALONG_OFFSET = 10;
-const BEND_MARKER_MIN_RADIUS = 2.5;
-const BEND_MARKER_OVERLAP_BOOST = 2.5;
-const BEND_OVERLAP_EPS = 0.5;
+export const BEND_MARKER_MIN_RADIUS = 2.5;
+export const BEND_MARKER_OVERLAP_BOOST = 2.5;
+export const BEND_OVERLAP_EPS = 0.5;
 
-function pointKey(point) {
+export function pointKey(point) {
   return `${Math.round(point.x)}:${Math.round(point.y)}`;
 }
 
-function getWireBendPoints(wire, start, end) {
+export function getWireBendPoints(wire, start, end) {
   if (!start || !end) {
     return [];
   }
@@ -64,7 +64,7 @@ function getWireBendPoints(wire, start, end) {
   return result;
 }
 
-function getWirePathPoints(wire, start, end) {
+export function getWirePathPoints(wire, start, end) {
   if (!start || !end) {
     return [];
   }
@@ -90,7 +90,7 @@ function getWirePathPoints(wire, start, end) {
   ];
 }
 
-function getWireSegments(points) {
+export function getWireSegments(points) {
   const segments = [];
   for (let i = 0; i < points.length - 1; i++) {
     const p1 = points[i];
@@ -108,7 +108,7 @@ function getWireSegments(points) {
   return segments;
 }
 
-function getDirection(from, to) {
+export function getDirection(from, to) {
   if (from.x === to.x) {
     return to.y > from.y ? "down" : "up";
   }
@@ -118,7 +118,7 @@ function getDirection(from, to) {
   return null;
 }
 
-function getOutgoingDirection(points, index) {
+export function getOutgoingDirection(points, index) {
   const curr = points[index];
   for (let i = index + 1; i < points.length; i++) {
     const next = points[i];
@@ -130,7 +130,7 @@ function getOutgoingDirection(points, index) {
   return null;
 }
 
-function isPointOnSegment(point, segment) {
+export function isPointOnSegment(point, segment) {
   if (segment.x1 === segment.x2) {
     if (Math.abs(point.x - segment.x1) > BEND_OVERLAP_EPS) {
       return false;

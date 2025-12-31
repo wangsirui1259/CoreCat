@@ -8,6 +8,9 @@ import { MODULE_LIBRARY, DEFAULT_MODULE, MUX_DEFAULT } from './constants.js';
 import { uid, isClockPort, ensureMuxGeometry, buildMuxSvgBackground, buildExtenderSvgBackground } from './utils.js';
 import { getPortLocalPosition } from './port.js';
 
+// 模块层事件委托处理器引用
+let moduleLayerDelegatedHandler = null;
+
 /**
  * 应用模块外观样式
  */
@@ -116,130 +119,177 @@ export function createModule(type, x, y, selectCallback) {
 }
 
 /**
- * 渲染所有模块
+ * 确保模块具有默认属性值
  */
-export function renderModules(selectCallback, startModuleDragCallback, handlePortClickCallback) {
-  moduleLayer.innerHTML = "";
-  moduleElements.clear();
-
-  state.modules.forEach((mod) => {
-    const el = document.createElement("div");
-    el.className = `module ${mod.type}${state.selection && state.selection.type === "module" && state.selection.id === mod.id ? " selected" : ""}`;
-    el.style.left = `${mod.x}px`;
-    el.style.top = `${mod.y}px`;
-    el.style.width = `${mod.width}px`;
-    el.style.height = `${mod.height}px`;
-    el.dataset.id = mod.id;
-    let muxCut = null;
-
-    if (!Number.isFinite(mod.nameSize)) {
-      mod.nameSize = DEFAULT_MODULE.nameSize;
-    }
-    if (mod.showType === undefined) {
-      mod.showType = DEFAULT_MODULE.showType;
-    }
-    if (mod.fill === undefined) {
-      mod.fill = DEFAULT_MODULE.fill;
-    }
-    if (mod.strokeColor === undefined) {
-      mod.strokeColor = DEFAULT_MODULE.strokeColor;
-    }
-    if (mod.strokeWidth === undefined) {
-      mod.strokeWidth = DEFAULT_MODULE.strokeWidth;
-    }
-    if (mod.type === "mux" && !Number.isFinite(mod.muxInputs)) {
+function ensureModuleDefaults(mod) {
+  if (!Number.isFinite(mod.nameSize)) {
+    mod.nameSize = DEFAULT_MODULE.nameSize;
+  }
+  if (mod.showType === undefined) {
+    mod.showType = DEFAULT_MODULE.showType;
+  }
+  if (mod.fill === undefined) {
+    mod.fill = DEFAULT_MODULE.fill;
+  }
+  if (mod.strokeColor === undefined) {
+    mod.strokeColor = DEFAULT_MODULE.strokeColor;
+  }
+  if (mod.strokeWidth === undefined) {
+    mod.strokeWidth = DEFAULT_MODULE.strokeWidth;
+  }
+  if (mod.type === "mux") {
+    if (!Number.isFinite(mod.muxInputs)) {
       mod.muxInputs = MUX_DEFAULT.inputs;
     }
-    if (mod.type === "mux" && !mod.muxControlSide) {
+    if (!mod.muxControlSide) {
       mod.muxControlSide = MUX_DEFAULT.controlSide;
     }
+  }
+}
 
-    if (mod.type === "mux") {
-      muxCut = ensureMuxGeometry(mod);
-      el.style.height = `${mod.height}px`;
-      el.style.setProperty("--mux-cut", `${muxCut}px`);
-      el.style.background = buildMuxSvgBackground(mod);
-      el.style.backgroundSize = '100% 100%';
-    }
-    if (mod.type === "extender") {
-      el.style.background = buildExtenderSvgBackground(mod);
-      el.style.backgroundSize = '100% 100%';
-    }
-    applyModuleAppearance(el, mod);
+/**
+ * 创建单个模块的DOM元素
+ */
+function createModuleElement(mod) {
+  const isSelected = state.selection && state.selection.type === "module" && state.selection.id === mod.id;
+  const el = document.createElement("div");
+  el.className = `module ${mod.type}${isSelected ? " selected" : ""}`;
+  el.style.left = `${mod.x}px`;
+  el.style.top = `${mod.y}px`;
+  el.style.width = `${mod.width}px`;
+  el.dataset.id = mod.id;
 
-    const header = document.createElement("div");
-    header.className = "module-header";
-    const title = document.createElement("div");
-    title.className = "module-title";
-    title.textContent = mod.name;
-    title.style.fontSize = `${mod.nameSize}px`;
+  ensureModuleDefaults(mod);
+
+  if (mod.type === "mux") {
+    ensureMuxGeometry(mod);
+    el.style.background = buildMuxSvgBackground(mod);
+    el.style.backgroundSize = '100% 100%';
+  } else if (mod.type === "extender") {
+    el.style.background = buildExtenderSvgBackground(mod);
+    el.style.backgroundSize = '100% 100%';
+  }
+
+  // Set height after ensureModuleDefaults and ensureMuxGeometry which may modify mod.height
+  el.style.height = `${mod.height}px`;
+  applyModuleAppearance(el, mod);
+
+  // Create module header
+  const header = document.createElement("div");
+  header.className = "module-header";
+  const title = document.createElement("div");
+  title.className = "module-title";
+  title.textContent = mod.name;
+  title.style.fontSize = `${mod.nameSize}px`;
+  header.appendChild(title);
+
+  if (mod.showType) {
     const type = document.createElement("div");
     type.className = "module-type";
     type.textContent = MODULE_LIBRARY[mod.type] ? MODULE_LIBRARY[mod.type].label : mod.type;
-    header.appendChild(title);
-    if (mod.showType) {
-      header.appendChild(type);
+    header.appendChild(type);
+  }
+  el.appendChild(header);
+
+  // 创建端口
+  mod.ports.forEach((port) => {
+    const clockPort = isClockPort(mod, port);
+    if (clockPort && port.side !== "top" && port.side !== "bottom") {
+      port.side = "bottom";
     }
-    el.appendChild(header);
+    const local = getPortLocalPosition(mod, port);
+    const portEl = document.createElement("div");
+    portEl.className = clockPort ? "port clock-port" : "port";
+    portEl.style.left = `${local.x}px`;
+    portEl.style.top = `${local.y}px`;
+    portEl.dataset.portId = port.id;
+    portEl.dataset.moduleId = mod.id;
 
-    mod.ports.forEach((port) => {
-      const clockPort = isClockPort(mod, port);
-      if (clockPort && port.side !== "top" && port.side !== "bottom") {
-        port.side = "bottom";
-      }
-      const local = getPortLocalPosition(mod, port);
-      const portEl = document.createElement("div");
-      portEl.className = clockPort ? "port clock-port" : "port";
-      portEl.style.left = `${local.x}px`;
-      portEl.style.top = `${local.y}px`;
-      portEl.dataset.portId = port.id;
-      portEl.dataset.moduleId = mod.id;
-      portEl.addEventListener("pointerdown", (event) => {
-        event.stopPropagation();
-        if (handlePortClickCallback) {
-          handlePortClickCallback(event, mod, port);
-        }
-      });
+    el.appendChild(portEl);
 
-      el.appendChild(portEl);
-
-      if (clockPort) {
-        const marker = document.createElement("div");
-        marker.className = "clock-marker";
-        marker.dataset.side = port.side;
-        marker.style.left = `${local.x}px`;
-        marker.style.top = `${local.y}px`;
-        el.appendChild(marker);
-        return;
-      }
-
+    if (clockPort) {
+      const marker = document.createElement("div");
+      marker.className = "clock-marker";
+      marker.dataset.side = port.side;
+      marker.style.left = `${local.x}px`;
+      marker.style.top = `${local.y}px`;
+      el.appendChild(marker);
+    } else {
       const label = document.createElement("div");
       label.className = "port-label";
       label.dataset.side = port.side;
       label.style.left = `${local.x}px`;
       label.style.top = `${local.y}px`;
       label.textContent = port.name;
-
       el.appendChild(label);
-    });
+    }
+  });
 
-    el.addEventListener("pointerdown", (event) => {
-      if (event.button !== 0) {
-        return;
-      }
-      if (event.target.closest(".port")) {
-        return;
-      }
-      event.preventDefault();
-      if (selectCallback) {
-        selectCallback({ type: "module", id: mod.id });
-      }
-      if (startModuleDragCallback) {
-        startModuleDragCallback(event, mod);
-      }
-    });
+  return el;
+}
 
-    moduleLayer.appendChild(el);
+/**
+ * 渲染所有模块
+ * 使用DocumentFragment批量操作DOM以提高性能
+ */
+export function renderModules(selectCallback, startModuleDragCallback, handlePortClickCallback) {
+  // 移除旧的事件监听器（如果存在）
+  if (moduleLayerDelegatedHandler) {
+    moduleLayer.removeEventListener("pointerdown", moduleLayerDelegatedHandler);
+    moduleLayerDelegatedHandler = null;
+  }
+
+  moduleLayer.innerHTML = "";
+  moduleElements.clear();
+
+  // 使用DocumentFragment批量添加DOM元素
+  const fragment = document.createDocumentFragment();
+
+  state.modules.forEach((mod) => {
+    const el = createModuleElement(mod);
+    fragment.appendChild(el);
     moduleElements.set(mod.id, el);
   });
+
+  // 一次性添加所有模块到DOM
+  moduleLayer.appendChild(fragment);
+
+  // 创建新的事件委托处理器
+  moduleLayerDelegatedHandler = (event) => {
+    if (event.button !== 0) {
+      return;
+    }
+
+    const portEl = event.target.closest(".port");
+    const moduleEl = event.target.closest(".module");
+
+    if (portEl && moduleEl) {
+      // 端口点击
+      event.stopPropagation();
+      const moduleId = portEl.dataset.moduleId;
+      const portId = portEl.dataset.portId;
+      const mod = state.modules.find((m) => m.id === moduleId);
+      if (mod && handlePortClickCallback) {
+        const port = mod.ports.find((p) => p.id === portId);
+        if (port) {
+          handlePortClickCallback(event, mod, port);
+        }
+      }
+    } else if (moduleEl) {
+      // 模块点击
+      event.preventDefault();
+      const moduleId = moduleEl.dataset.id;
+      const mod = state.modules.find((m) => m.id === moduleId);
+      if (mod) {
+        if (selectCallback) {
+          selectCallback({ type: "module", id: mod.id });
+        }
+        if (startModuleDragCallback) {
+          startModuleDragCallback(event, mod);
+        }
+      }
+    }
+  };
+
+  moduleLayer.addEventListener("pointerdown", moduleLayerDelegatedHandler);
 }

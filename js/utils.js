@@ -14,6 +14,38 @@ export function clamp(value, min, max) {
 }
 
 /**
+ * 节流函数 - 限制函数调用频率
+ * 使用时间间隔进行节流，确保函数在指定时间内最多执行一次
+ * @param {Function} fn - 要节流的函数
+ * @param {number} delay - 节流延迟（毫秒）
+ * @returns {Function} 节流后的函数
+ */
+export function throttle(fn, delay) {
+  let lastCall = 0;
+  let timeoutId = null;
+
+  return function (...args) {
+    const now = Date.now();
+    const remaining = delay - (now - lastCall);
+
+    if (remaining <= 0) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      lastCall = now;
+      fn.apply(this, args);
+    } else if (!timeoutId) {
+      timeoutId = setTimeout(() => {
+        lastCall = Date.now();
+        timeoutId = null;
+        fn.apply(this, args);
+      }, remaining);
+    }
+  };
+}
+
+/**
  * 生成唯一ID
  */
 export function uid(prefix) {
@@ -163,6 +195,47 @@ export function ensureMuxGeometry(mod, mode) {
 }
 
 /**
+ * 解析RGB/RGBA颜色字符串
+ * 支持 rgb(r, g, b)、rgba(r, g, b, a) 和十六进制格式（#RGB、#RRGGBB、#RRGGBBAA）
+ * @param {string} color - 颜色字符串
+ * @param {boolean} includeAlpha - 是否返回alpha值，默认false
+ * @returns {Object|null} 返回 {r, g, b} 或 {r, g, b, a}，解析失败返回null
+ */
+export function parseRgb(color, includeAlpha = false) {
+  if (typeof color !== "string") {
+    return null;
+  }
+  const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+  if (rgbaMatch) {
+    const r = Number.parseInt(rgbaMatch[1], 10);
+    const g = Number.parseInt(rgbaMatch[2], 10);
+    const b = Number.parseInt(rgbaMatch[3], 10);
+    const a = rgbaMatch[4] !== undefined ? Number.parseFloat(rgbaMatch[4]) : 1;
+    if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b) || Number.isNaN(a)) {
+      return null;
+    }
+    return includeAlpha ? { r, g, b, a } : { r, g, b };
+  }
+  if (color.startsWith("#")) {
+    let hex = color.slice(1).trim();
+    if (hex.length === 3) {
+      hex = hex.split("").map((ch) => ch + ch).join("");
+    }
+    if (hex.length === 6 || hex.length === 8) {
+      const r = Number.parseInt(hex.slice(0, 2), 16);
+      const g = Number.parseInt(hex.slice(2, 4), 16);
+      const b = Number.parseInt(hex.slice(4, 6), 16);
+      const a = hex.length === 8 ? Number.parseInt(hex.slice(6, 8), 16) / 255 : 1;
+      if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b) || Number.isNaN(a)) {
+        return null;
+      }
+      return includeAlpha ? { r, g, b, a } : { r, g, b };
+    }
+  }
+  return null;
+}
+
+/**
  * 获取模块渐变填充的SVG定义和填充属性
  * 与CSS中 color-mix 渐变一致，根据模块类型的 stroke 颜色生成渐变
  */
@@ -170,38 +243,6 @@ export function getModuleGradientFill(mod, strokeColor, gradientId = "moduleGrad
   const hasFill = typeof mod.fill === "string" && mod.fill !== "";
   const useGradient = !hasFill;
   const fillAttr = useGradient ? `url(#${gradientId})` : mod.fill;
-
-  const parseRgb = (color) => {
-    if (typeof color !== "string") {
-      return null;
-    }
-    const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-    if (rgbaMatch) {
-      const r = Number.parseInt(rgbaMatch[1], 10);
-      const g = Number.parseInt(rgbaMatch[2], 10);
-      const b = Number.parseInt(rgbaMatch[3], 10);
-      if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
-        return null;
-      }
-      return { r, g, b };
-    }
-    if (color.startsWith("#")) {
-      let hex = color.slice(1).trim();
-      if (hex.length === 3) {
-        hex = hex.split("").map((ch) => ch + ch).join("");
-      }
-      if (hex.length === 6 || hex.length === 8) {
-        const r = Number.parseInt(hex.slice(0, 2), 16);
-        const g = Number.parseInt(hex.slice(2, 4), 16);
-        const b = Number.parseInt(hex.slice(4, 6), 16);
-        if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
-          return null;
-        }
-        return { r, g, b };
-      }
-    }
-    return null;
-  };
 
   // 根据 stroke 颜色生成渐变，模拟 CSS color-mix(in srgb, strokeColor 16%, white) 和 color-mix(in srgb, strokeColor 8%, white)
   // 使用 stroke 颜色的淡色版本作为渐变
