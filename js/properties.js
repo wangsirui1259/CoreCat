@@ -644,9 +644,9 @@ export function renderProperties(renderModulesCallback, updateWiresCallback, upd
   const renderPropertiesCallback = () => renderProperties(renderModulesCallback, updateWiresCallback, updateStatusCallback);
 
   propertiesContent.innerHTML = "";
-  renderCanvasProperties(renderPropertiesCallback);
 
   if (!state.selection) {
+    renderCanvasProperties(renderPropertiesCallback);
     const empty = document.createElement("div");
     empty.className = "empty-state";
     empty.textContent = "Select a module or wire to edit its properties. Drag modules from the palette to start.";

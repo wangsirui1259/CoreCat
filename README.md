@@ -7,15 +7,23 @@
 </br>
 
 <p align="center">
-  <a href="https://github.com/mihomo-party-org/clash-party/releases">
-    <img src="https://img.shields.io/github/release/mihomo-party-org/clash-party/all.svg?style=flat">
+  <a href="https://github.com/Zxis233/CoreCat/graphs/contributors">
+    <img alt="AI" src="https://img.shields.io/badge/Fully-AI--Generated-black?logo=github-copilot&style=flat" />
   </a>
-  <img alt="last commit" src="https://img.shields.io/github/last-commit/Zxis233/CoreCat?style=flat" />
-  <img alt="license" src="https://img.shields.io/github/license/Zxis233/CoreCat?style=flat" />
+  <a href="https://github.com/Zxis233/CoreCat/releases">
+    <img src="https://img.shields.io/github/release/Zxis233/CoreCat/all.svg?style=flat&color=blue">
+  </a>
+  <a href="https://github.com/Zxis233/CoreCat/commits">
+    <img alt="commit" src="https://img.shields.io/github/last-commit/Zxis233/CoreCat?style=flat" />
+  </a>
+  <a href="https://github.com/Zxis233/CoreCat?tab=GPL-3.0-1-ov-file#readme">
+    <img alt="license" src="https://img.shields.io/github/license/Zxis233/CoreCat?style=flat" />
+  </a>
   <a href="https://corecat.esing.dev">
-    <img src="https://img.shields.io/badge/Online-Demo-F38020?logo=cloudflare">
+    <img src="https://img.shields.io/badge/Online-Demo-F38020?logo=cloudflare&style=flat">
   </a>
 </p>
+
 
 CoreCat 是一个轻量的浏览器端模块/连线绘制工具，用于快速绘制模块级电路图，支持可视化编辑模块、端口、连线，并导入导出。
 

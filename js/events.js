@@ -807,27 +807,45 @@ export function initCanvasEvents() {
   canvas.addEventListener(
     "wheel",
     (event) => {
-      if (!event.ctrlKey) {
+      if (event.ctrlKey) {
+        event.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const cursorX = event.clientX - rect.left;
+        const cursorY = event.clientY - rect.top;
+        const oldScale = state.view.scale;
+        const factor = event.deltaY > 0 ? 0.9 : 1.1;
+        const nextScale = clamp(oldScale * factor, 0.2, 2);
+        if (nextScale === oldScale) {
+          return;
+        }
+        const worldX = (cursorX - state.view.offsetX) / oldScale;
+        const worldY = (cursorY - state.view.offsetY) / oldScale;
+        state.view.scale = nextScale;
+        state.view.offsetX = cursorX - worldX * nextScale;
+        state.view.offsetY = cursorY - worldY * nextScale;
+        applyViewTransform();
+        doUpdateWires();
+        updateStatus();
         return;
       }
+
       event.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      const cursorX = event.clientX - rect.left;
-      const cursorY = event.clientY - rect.top;
-      const oldScale = state.view.scale;
-      const factor = event.deltaY > 0 ? 0.9 : 1.1;
-      const nextScale = clamp(oldScale * factor, 0.2, 2);
-      if (nextScale === oldScale) {
-        return;
+      const deltaX = event.deltaX || 0;
+      const deltaY = event.deltaY || 0;
+      if (event.shiftKey) {
+        const panX = deltaX !== 0 ? deltaX : deltaY;
+        if (panX === 0) {
+          return;
+        }
+        state.view.offsetX -= panX;
+      } else {
+        if (deltaY === 0) {
+          return;
+        }
+        state.view.offsetY -= deltaY;
       }
-      const worldX = (cursorX - state.view.offsetX) / oldScale;
-      const worldY = (cursorY - state.view.offsetY) / oldScale;
-      state.view.scale = nextScale;
-      state.view.offsetX = cursorX - worldX * nextScale;
-      state.view.offsetY = cursorY - worldY * nextScale;
       applyViewTransform();
       doUpdateWires();
-      updateStatus();
     },
     { passive: false }
   );
