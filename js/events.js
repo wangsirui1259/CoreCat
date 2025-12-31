@@ -24,35 +24,6 @@ const MODULE_CLIPBOARD_OFFSET = 24;
 const MODULE_DRAG_MIME = "application/x-corecat-module";
 let moduleClipboard = null;
 
-/**
- * 节流函数 - 限制函数调用频率
- * @param {Function} fn - 要节流的函数
- * @param {number} delay - 节流延迟（毫秒）
- * @returns {Function} 节流后的函数
- */
-function throttle(fn, delay) {
-  let lastCall = 0;
-  let scheduledCall = null;
-  return function(...args) {
-    const now = Date.now();
-    const remaining = delay - (now - lastCall);
-    
-    if (remaining <= 0) {
-      if (scheduledCall) {
-        cancelAnimationFrame(scheduledCall);
-        scheduledCall = null;
-      }
-      lastCall = now;
-      fn.apply(this, args);
-    } else if (!scheduledCall) {
-      scheduledCall = requestAnimationFrame(() => {
-        lastCall = Date.now();
-        scheduledCall = null;
-        fn.apply(this, args);
-      });
-    }
-  };
-}
 
 /**
  * 应用视图变换

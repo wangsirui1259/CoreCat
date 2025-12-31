@@ -8,6 +8,9 @@ import { MODULE_LIBRARY, DEFAULT_MODULE, MUX_DEFAULT } from './constants.js';
 import { uid, isClockPort, ensureMuxGeometry, buildMuxSvgBackground, buildExtenderSvgBackground } from './utils.js';
 import { getPortLocalPosition } from './port.js';
 
+// 模块层事件委托处理器引用
+let moduleLayerDelegatedHandler = null;
+
 /**
  * 应用模块外观样式
  */
@@ -154,20 +157,21 @@ function createModuleElement(mod) {
   el.style.left = `${mod.x}px`;
   el.style.top = `${mod.y}px`;
   el.style.width = `${mod.width}px`;
-  el.style.height = `${mod.height}px`;
   el.dataset.id = mod.id;
 
   ensureModuleDefaults(mod);
 
   if (mod.type === "mux") {
     ensureMuxGeometry(mod);
-    el.style.height = `${mod.height}px`;
     el.style.background = buildMuxSvgBackground(mod);
     el.style.backgroundSize = '100% 100%';
   } else if (mod.type === "extender") {
     el.style.background = buildExtenderSvgBackground(mod);
     el.style.backgroundSize = '100% 100%';
   }
+  
+  // Set height after potential geometry adjustments (for mux modules)
+  el.style.height = `${mod.height}px`;
   applyModuleAppearance(el, mod);
 
   // 创建模块头部
@@ -246,12 +250,12 @@ export function renderModules(selectCallback, startModuleDragCallback, handlePor
 
   // 使用事件委托处理模块和端口的点击事件
   // 移除旧的事件监听器（如果存在）
-  if (moduleLayer._delegatedHandler) {
-    moduleLayer.removeEventListener("pointerdown", moduleLayer._delegatedHandler);
+  if (moduleLayerDelegatedHandler) {
+    moduleLayer.removeEventListener("pointerdown", moduleLayerDelegatedHandler);
   }
 
   // 创建新的事件委托处理器
-  moduleLayer._delegatedHandler = (event) => {
+  moduleLayerDelegatedHandler = (event) => {
     if (event.button !== 0) {
       return;
     }
@@ -287,5 +291,5 @@ export function renderModules(selectCallback, startModuleDragCallback, handlePor
     }
   };
 
-  moduleLayer.addEventListener("pointerdown", moduleLayer._delegatedHandler);
+  moduleLayer.addEventListener("pointerdown", moduleLayerDelegatedHandler);
 }
